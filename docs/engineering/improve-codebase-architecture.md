@@ -95,7 +95,7 @@ No. No step in the skill writes code, but nothing in it forbids writing code eit
 
 **Does it work in Codex or another [harness](https://www.aihero.dev/ai-coding-dictionary/harness)?**
 
-Partly. The exploration step names Claude Code's `Agent` tool with `subagent_type=Explore` directly. A harness without that tool may skip the parallel exploration instead of using its own equivalent. The skill still runs, but the scan is less thorough. Someone has proposed a harness-neutral rewrite, but it is not merged.
+Yes, as far as the skill's wording goes. The exploration step asks for a [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent) in harness-neutral terms, and since v1.3.2 it says to start that subagent with a fresh context window. That matters in Codex, which forks the current conversation into a subagent by default, so the explorer would otherwise inherit everything you had already discussed instead of reading the codebase with clean eyes.
 
 **How do I actually implement deep modules in TypeScript?**
 

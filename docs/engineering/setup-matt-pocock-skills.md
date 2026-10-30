@@ -39,8 +39,8 @@ The tracker options:
 
 | Option | Where issues live | Needs |
 | --- | --- | --- |
-| **GitHub** | the repo's GitHub Issues | the `gh` CLI |
-| **GitLab** | the repo's GitLab Issues | the `glab` CLI |
+| **GitHub** | the repo's GitHub Issues | the `gh` CLI, and a remote it can reach (setup asks for the URL and wires one up if missing) |
+| **GitLab** | the repo's GitLab Issues | the `glab` CLI, and a remote it can reach (same) |
 | **Local markdown** | files under `.scratch/<feature>/` in this repo | nothing, not even a remote |
 | **Other** | wherever you say | one paragraph from you describing the workflow |
 
@@ -60,7 +60,7 @@ The direct answer after v1.1 was yes. The skill's own closing message is softer.
 
 **I updated to v1.3 and the skills ignore my `CONTEXT.md`.**
 
-v1.3 renamed the domain-doc convention: `CONTEXT.md` is now `GLOSSARY.md`, and `CONTEXT-MAP.md` is now `GLOSSARY-MAP.md`. The skills look only for the new names, so an old `CONTEXT.md` is silently ignored, and the first term [domain-modeling](https://aihero.dev/skills-domain-modeling) resolves starts a fresh `GLOSSARY.md` beside it. Nothing warns you at update time; the only migration note is in the changelog ([issue #1153](https://github.com/mattpocock/skills/issues/1153), [issue #1176](https://github.com/mattpocock/skills/issues/1176)). A re-run of setup does not catch it either, because its exploration looks only for the new names. Rename by hand while no session is running (`git mv CONTEXT.md GLOSSARY.md`, and the map file if you have one), then check that `docs/agents/domain.md` no longer names the old file.
+v1.3 renamed the domain-doc convention: `CONTEXT.md` is now `GLOSSARY.md`, and `CONTEXT-MAP.md` is now `GLOSSARY-MAP.md`. The skills look only for the new names, so an old `CONTEXT.md` is silently ignored, and the first term [domain-modeling](https://aihero.dev/skills-domain-modeling) resolves starts a fresh `GLOSSARY.md` beside it. Nothing warns you at update time; the only migration note is in the changelog ([issue #1153](https://github.com/mattpocock/skills/issues/1153), [issue #1176](https://github.com/mattpocock/skills/issues/1176)). Since v1.3.2, a re-run of setup catches it: its exploration looks for the legacy names too, and offers to `git mv` each one to its `GLOSSARY` name and rewrite the names in `docs/agents/domain.md`. On an older copy, rename by hand while no session is running (`git mv CONTEXT.md GLOSSARY.md`, and the map file if you have one), then check that `docs/agents/domain.md` no longer names the old file.
 
 **It wrote to `CLAUDE.md`, but I'm on Codex.**
 
@@ -68,10 +68,10 @@ This is a known gap, and still open. The file-selection rule is "edit `CLAUDE.md
 
 **It didn't create my triage labels.**
 
-It doesn't. `docs/agents/triage-labels.md` is a *mapping*: it tells `/triage` which strings in your tracker correspond to the five canonical roles. It does not run `gh label create`. On a fresh GitHub repo the labels do not exist yet, and users have filed this as a bug more than once. Two consequences:
+Since v1.3.2 it does, on GitHub and GitLab. `docs/agents/triage-labels.md` is a *mapping*: it tells `/triage` which strings in your tracker correspond to the five canonical roles. Users filed it as a bug more than once that setup wrote the mapping but never created the labels, so on a fresh repo they did not exist yet ([#616](https://github.com/mattpocock/skills/issues/616)). Now, when the labels section runs, setup creates each configured label the tracker lacks (`gh label create` / `glab label create`). If yours predates the fix, update and re-run setup, or create the labels by hand. Two things to know:
 
 - If your tracker already uses the canonical names, the mapping is an identity table and there is nothing to configure. That is the intended common case, not a missing step.
-- This skill does not create [wayfinder](https://aihero.dev/skills-wayfinder)'s `wayfinder:map` and `wayfinder:<type>` labels either, and `gh issue create --label <missing>` fails instead of creating the label. Create them by hand before the first wayfinder run on a GitHub repo.
+- This skill still does not create [wayfinder](https://aihero.dev/skills-wayfinder)'s `wayfinder:map` and `wayfinder:<type>` labels either, and `gh issue create --label <missing>` fails instead of creating the label. Create them by hand before the first wayfinder run on a GitHub repo.
 
 **It never wrote `triage-labels.md`, even though `triage` is installed.**
 

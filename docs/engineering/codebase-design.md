@@ -69,7 +69,7 @@ It does now, but for a long time it did not. v1.0 removed the inline deep-module
 
 **Does the design-it-twice pattern work outside Claude Code?**
 
-Yes. `DESIGN-IT-TWICE.md` used to name Claude Code's `Agent` [tool](https://www.aihero.dev/ai-coding-dictionary/tool), which other [harnesses](https://www.aihero.dev/ai-coding-dictionary/harness) such as Codex do not have. [Issue #564](https://github.com/mattpocock/skills/issues/564) made it harness-neutral: it now says only to spawn three or more subagents in parallel, so any harness that can run parallel subagents can run it.
+Yes. `DESIGN-IT-TWICE.md` used to name Claude Code's `Agent` [tool](https://www.aihero.dev/ai-coding-dictionary/tool), which other [harnesses](https://www.aihero.dev/ai-coding-dictionary/harness) such as Codex do not have. [Issue #564](https://github.com/mattpocock/skills/issues/564) made it harness-neutral: it now says only to spawn three or more subagents in parallel, each with a fresh [context window](https://www.aihero.dev/ai-coding-dictionary/context-window), so any harness that can run parallel subagents can run it. The fresh window matters on harnesses such as Codex that fork the parent conversation by default, because a forked subagent inherits the parent's whole conversation instead of starting from its own brief.
 
 **Can I add my own concepts to the glossary, such as connascence, module secrets, [progressive disclosure](https://www.aihero.dev/ai-coding-dictionary/progressive-disclosure)?**
 

@@ -32,7 +32,7 @@ If the tickets came from [to-tickets](https://aihero.dev/skills-to-tickets), [se
 
 A run has five steps, in order:
 
-1. Read the ticket or spec and work out the seams.
+1. Fetch the ticket from the tracker and state its title (or read the spec), then work out the seams.
 2. Drive [tdd](https://aihero.dev/skills-tdd) at the pre-agreed seams, one red-green slice at a time.
 3. Typecheck often, run single test files as it goes.
 4. Run the full test suite once, at the end.
@@ -54,9 +54,9 @@ Correct, and expected. `implement` has no completion step. It ends at the commit
 
 **It never ran `/tdd` or `/code-review`, or it ran a different `code-review`.**
 
-Both happen, and they have separate causes. The skill names its two sub-steps in prose ("use /tdd where possible", "use /code-review"), and naming a skill in prose does not reliably make the agent load it. The `tdd` step is also soft by design: it fires only "at pre-agreed seams", so with no agreed seams the run just writes the code. The review sits at the very end of a long run, where it is the first instruction to drop. One user reported that on their runs, TDD and code-review "almost never run" ([#479](https://github.com/mattpocock/skills/issues/479)).
+Both happen, and they have separate causes. The skill used to name its two sub-steps in prose ("use /tdd where possible", "use /code-review"), and naming a skill in prose does not reliably make the agent load it. Since 1.3.2 it tells the agent to call the Skill tool with `tdd` and with `code-review` instead, so on an older copy, update first. The `tdd` step is also soft by design: it fires only "at pre-agreed seams", so with no agreed seams the run just writes the code. The review sits at the very end of a long run, where it is the first instruction to drop. One user reported that on their runs, TDD and code-review "almost never run" ([#479](https://github.com/mattpocock/skills/issues/479)).
 
-The other case is Claude Code specific. Claude Code now ships its own built-in `/code-review`, and under the plugin this set's review is only reachable as `mattpocock-skills:code-review`. The bare name inside `implement` can resolve to the built-in, so the run ends with a different review, or the call is refused with a `disable-model-invocation` error that has nothing to do with this skill ([#809](https://github.com/mattpocock/skills/issues/809), [#1215](https://github.com/mattpocock/skills/issues/1215)). Both are open. Until they are fixed, say it in the invocation ("call the Skill tool for `tdd` at each seam, and for `mattpocock-skills:code-review` after committing"), or run `/mattpocock-skills:code-review` yourself once the commit exists.
+The other case is Claude Code specific. Claude Code now ships its own built-in `/code-review`, and under the plugin this set's review is only reachable as `mattpocock-skills:code-review`. The bare name inside `implement` can resolve to the built-in, so the run ends with a different review, or the call is refused with a `disable-model-invocation` error that has nothing to do with this skill ([#809](https://github.com/mattpocock/skills/issues/809), [#1215](https://github.com/mattpocock/skills/issues/1215)). #809 is closed, but #1215 is still open: the Skill tool call still names the bare `code-review`, so until that is fixed, say it in the invocation ("call the Skill tool for `mattpocock-skills:code-review` after committing"), or run `/mattpocock-skills:code-review` yourself once the commit exists.
 
 **Can I point it at all my tickets at once, or run several in parallel?**
 
