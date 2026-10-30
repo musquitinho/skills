@@ -2,7 +2,7 @@
 
 `diagnosing-bugs` runs a six-phase diagnosis on a hard bug or a performance regression: build a repro, minimise it, rank hypotheses, instrument, fix with a regression test, clean up.
 
-It will not let the agent form a theory until a **tight** feedback loop exists: one named command, already run once, that goes red on *this* bug and green when it is fixed. Given a bug report, a coding agent by default reads code and guesses. This skill blocks that. If no red-capable command exists, there is no Phase 2. That single gate is what the skill is for. Once the loop exists, everything after it (bisection, hypothesis-testing, instrumentation) is mechanical.
+It will not let the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) form a theory until a **tight** feedback loop exists: one named command, already run once, that goes red on *this* bug and green when it is fixed. Given a bug report, a coding agent by default reads code and guesses. This [skill](https://www.aihero.dev/ai-coding-dictionary/skill) blocks that. If no red-capable command exists, there is no Phase 2. That single gate is what the skill is for. Once the loop exists, everything after it (bisection, hypothesis-testing, instrumentation) is mechanical.
 
 ## When to reach for it
 
@@ -18,7 +18,7 @@ Reach for it on the hard ones: a bug you can't solve at first look, an intermitt
 | A raw bug report from someone else, not yet confirmed or written up | [triage](https://aihero.dev/skills-triage) first |
 | Throwaway code to answer a design question, not chase a defect | [prototype](https://aihero.dev/skills-prototype) |
 | Building a planned behaviour test-first | [tdd](https://aihero.dev/skills-tdd) |
-| Asking what would have prevented the bug, once it is fixed | [retro](https://aihero.dev/skills-retro), run in the same session |
+| Asking what would have prevented the bug, once it is fixed | [retro](https://aihero.dev/skills-retro), run in the same [session](https://www.aihero.dev/ai-coding-dictionary/session) |
 | No good seam exists to lock the bug down | [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture), which you start yourself |
 
 ## The tight loop is the skill
@@ -63,13 +63,13 @@ This is the most-reported problem with the skill. On GPT-5.6-Sol especially, use
 No. It diagnoses one failure you can already name. Its performance branch is for a regression with a symptom (establish a baseline measurement, then bisect, measure first and fix second), not for a proactive sweep. A skill for the proactive version was [proposed and closed](https://github.com/mattpocock/skills/issues/431); no skill does it now.
 
 **Does it stop and ask me before it writes the fix?**
-No. Only Phase 3 has a human checkpoint: the ranked hypothesis list is shown to you before any is tested, and the agent continues with its own ranking if you are away. There is no gate between instrumentation and the fix, so the agent can start writing code before you have agreed with its root cause. [Issue #124](https://github.com/mattpocock/skills/issues/124) asks for that gate and is still open. If you want it, say so when you invoke the skill.
+No. Only Phase 3 has a human checkpoint: the ranked hypothesis list is shown to you before any is tested, and the agent continues with its own ranking if you are away. There is no gate between instrumentation and the fix, so the agent can start writing code before you have agreed with its root cause. [Issue #124](https://github.com/mattpocock/skills/issues/124) asked for that gate and was closed without adding it. If you want it, say so when you invoke the skill.
 
 **I already ran `/triage` on this bug report. Is this the same work again?**
 Partly, and neither skill says so. As one reader put it: "Triage's step 3 is essentially a shallow, bounded instance of diagnosing-bugs Phase 1–2, but neither file mentions the other." Triage does a bounded "is this actually a bug, and what is the surface" pass; this skill does the thorough version. Running triage first is not wasted, because its verification often gives you most of Phase 1's raw material. But expect this skill to redo that work in full, and expect no cross-reference to tell you so.
 
 **Will the repro output it pastes leak secrets?**
-It might. The skill asks the agent to paste the invocation and its output, and to request artifacts like HAR files, log dumps, and core dumps. No instruction tells the agent to sanitise them. [Issue #674](https://github.com/mattpocock/skills/issues/674) raises exactly this (credentials, tokens, cookies, and personal data copied into a chat, an issue, or a PR) and proposes a redaction guardrail. It is open and unimplemented. Treat redaction as your job for now, particularly before the output goes anywhere public.
+It shouldn't. The skill has a redaction rule, added for [issue #674](https://github.com/mattpocock/skills/issues/674): before it shows a command, its output or a captured artifact, the agent writes `<REDACTED>` in place of every secret. It builds loops against env vars so credentials stay out of what it shows, and it quotes only the lines of an artifact that carry the signal. If the redacted output is not enough to diagnose the bug, it asks you instead of showing more. The rule is an instruction, not a filter, so still check before the output goes anywhere public.
 
 **My security scanner flagged this skill as high risk.**
 Snyk flags it, and the flag is a false positive. It is the only skill in the set that ships an executable shell script (`hitl-loop.template.sh`) alongside instructions to run it and to curl a dev server. A shipped `.sh` file, instructions to run it, and outbound HTTP together are enough to trigger a static scanner. The script itself is about 30 lines of `read -r -p` prompts that pause for human input. The scanner rates what the skill could do, not a proven exploit.

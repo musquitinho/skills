@@ -10,7 +10,7 @@ You invoke this by typing `/grill-me`; the [agent](https://www.aihero.dev/ai-cod
 
 Reach for it as soon as you have an idea worth taking seriously (a feature, a product direction, a business call, a piece of writing), and long before you have worked out what it involves. Vagueness is not a reason to wait, because the session exists to remove it. If you can already specify the thing precisely, you don't need to grill it.
 
-Which of the three grilling skills you want depends on what is in front of you:
+Which of the three [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) [skills](https://www.aihero.dev/ai-coding-dictionary/skill) you want depends on what is in front of you:
 
 - **Anything, anywhere.** Use `grill-me`. It needs no repo and writes no files, and the subject doesn't have to be code.
 - **A codebase to align against.** Use [grill-with-docs](https://aihero.dev/skills-grill-with-docs). It is the same interview, but [stateful](https://www.aihero.dev/ai-coding-dictionary/stateful): it reads your code and keeps what it learns in `GLOSSARY.md` and ADRs.
@@ -36,13 +36,6 @@ Some questions can be answered by talking. Others can't, and no amount of grilli
 
 Sessions grow too long when you try to talk through an ungrillable question. The agent keeps rephrasing, you keep guessing, and the scope grows with the uncertainty.
 
-## It's working if
-
-- You disagree with something. A session with no pushback from you is a session you didn't need.
-- Questions arrive in a few rounds, not one at a time for a long time, and later rounds clearly build on what you said earlier.
-- You end up somewhere you didn't expect, because a question showed you a decision you had been making without noticing.
-- At the end you could defend each choice to someone who wasn't there.
-
 ## Common questions
 
 **How many questions should I expect, and how do I know when it ends?**
@@ -58,14 +51,30 @@ Yes. Add this to your global `CLAUDE.md`:
 When grilling, ask one question at a time.
 ```
 
+**I installed `grill-me` on its own, and it says `grilling` doesn't exist.**
+That is expected, and it is one of the most-filed problems with this skill ([#685](https://github.com/mattpocock/skills/issues/685), [#1319](https://github.com/mattpocock/skills/issues/1319)). The whole body of `grill-me` is one instruction to load [grilling](https://aihero.dev/skills-grilling), so it does nothing without it, and the installer does not pull it in for you. Install `grilling` as well, or the whole set. Some agents carry on anyway and improvise an interview. You can tell it isn't this one, because the questions arrive without rounds or recommended answers.
+
+**It says `grill-me` "cannot be used with Skill tool due to disable-model-invocation".**
+This is a [harness](https://www.aihero.dev/ai-coding-dictionary/harness) interaction, reported in Claude Code and still open ([#1052](https://github.com/mattpocock/skills/issues/1052), [#1056](https://github.com/mattpocock/skills/issues/1056)). The setting that stops the agent from firing `grill-me` on its own also stops the agent from calling it after you have typed it. The skill only needs `grilling`, which the agent is allowed to call, so tell it to call the Skill tool with `grilling` directly.
+
+**It ran out of questions and started building.**
+It should stop and wait for you to confirm that you share an understanding, but weaker or faster [models](https://www.aihero.dev/ai-coding-dictionary/model) skip that step, and some collapse the interview into a question or two and an outline ([#240](https://github.com/mattpocock/skills/issues/240), [#729](https://github.com/mattpocock/skills/issues/729)). The reliable fix is a line in your own `AGENTS.md` or `CLAUDE.md` telling the agent not to implement without your permission.
+
 **What if I genuinely don't know the answer?**
 Say so. "I don't know" is a real answer, and a question you can't answer is usually a sign to prototype rather than to guess.
 
-**Do I start a fresh session before writing the spec?**
+**Do I start a fresh session before writing the [spec](https://www.aihero.dev/ai-coding-dictionary/spec)?**
 No. The value of the session is the [context](https://www.aihero.dev/ai-coding-dictionary/context) you just built. Hand the same conversation straight to [to-spec](https://aihero.dev/skills-to-spec).
 
 **Does the model matter?**
-More than for most skills. Grilling depends on the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s own knowledge of how systems break, so use your best one. Implementation mostly follows context, so a cheaper model is fine there.
+More than for most skills. Grilling depends on the model's own knowledge of how systems break, so use your best one. Implementation mostly follows context, so a cheaper model is fine there.
+
+## It's working if
+
+- You disagree with something. A session with no pushback from you is a session you didn't need.
+- Questions arrive in a few rounds, not one at a time for a long time, and later rounds clearly build on what you said earlier.
+- You end up somewhere you didn't expect, because a question showed you a decision you had been making without noticing.
+- At the end you could defend each choice to someone who wasn't there.
 
 ## Where it fits
 

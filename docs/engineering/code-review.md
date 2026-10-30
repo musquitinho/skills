@@ -1,12 +1,12 @@
 ## What it does
 
-`code-review` reviews the diff between `HEAD` and a fixed point you name (a commit, a branch, a tag, `main`, `HEAD~5`) along two axes. **Standards** asks whether the code follows how this repo writes code. **Spec** asks whether the code does what the originating issue or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) asked for. Each axis runs in its own [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) so neither sees the other's reasoning.
+`code-review` reviews the diff between `HEAD` and a fixed point you name (a commit, a branch, a tag, `main`, `HEAD~5`) along two axes. **Standards** asks whether the code follows how this repo writes code. **Spec** asks whether the code does what the originating issue or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) asked for. Each axis runs in its own [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent) so neither sees the other's reasoning.
 
-The skill never merges or re-ranks the two axes. The report ends with a worst issue *per axis* and declines to name a single winner across them. A change can pass one axis and fail the other. Code that follows every convention but implements the wrong thing passes Standards and fails Spec. Code that does exactly what the [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) asked but breaks the repo's conventions does the reverse. A blended verdict lets the passing axis hide the failing one.
+The [skill](https://www.aihero.dev/ai-coding-dictionary/skill) never merges or re-ranks the two axes. The report ends with a worst issue *per axis* and declines to name a single winner across them. A change can pass one axis and fail the other. Code that follows every convention but implements the wrong thing passes Standards and fails Spec. Code that does exactly what the [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) asked but breaks the repo's conventions does the reverse. A blended verdict lets the passing axis hide the failing one.
 
 ## When to reach for it
 
-Type `/code-review`, or the agent reaches for it automatically when you ask to review a branch, a PR, work in progress, or anything "since X".
+Type `/code-review`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it automatically when you ask to review a branch, a PR, work in progress, or anything "since X".
 
 | Your situation | Reach for |
 | --- | --- |
@@ -17,7 +17,7 @@ Type `/code-review`, or the agent reaches for it automatically when you ask to r
 | The whole codebase has drifted, not one diff | [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) |
 | Something is broken and you do not know why | [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs) |
 
-You must supply the fixed point. If you do not, the skill asks for one rather than guessing. Before it spawns anything, it checks that the ref resolves and that the diff is not empty, so a mistyped branch name fails in front of you instead of inside two sub-agents.
+You must supply the fixed point. If you do not, the skill asks for one rather than guessing. Before it spawns anything, it checks that the ref resolves and that the diff is not empty, so a mistyped branch name fails in front of you instead of inside two subagents.
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ The Spec axis needs a spec to exist and be findable. It looks in this order:
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch or feature name.
 4. Asking you.
 
-Step 1 depends on the tracker doc, which [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) writes. Without it the axis still works if you hand it a path. With no spec at all, the skill skips the Spec sub-agent and the report says "no spec available" rather than inventing requirements.
+Step 1 depends on the tracker doc, which [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) writes. Without it the axis still works if you hand it a path. With no spec at all, the skill skips the Spec subagent and the report says "no spec available" rather than inventing requirements.
 
 ## The two axes
 
@@ -56,9 +56,9 @@ This is the most reported problem with the skill, and it is not fixed. Claude Co
 
 One answer is to remove Claude Code's built-in skills entirely. That saves a lot of [context](https://www.aihero.dev/ai-coding-dictionary/context), and the collision stops mattering. The shadowing itself is arguably a Claude Code [harness](https://www.aihero.dev/ai-coding-dictionary/harness) bug (a skill author should be free to name a skill anything), so the other answer is to rename the local copy. `npx skills update` undoes an edit to the frontmatter or a renamed directory. The durable workaround users report is to fork the skill to a new name and drop `code-review` from the managed set. Keep a note of the commit you forked from so you can re-sync by hand.
 
-**Its sub-agents keep invoking `/code-review` again and spawn more agents.**
+**Its subagents keep invoking `/code-review` again and spawn more agents.**
 
-This is a known open bug. Several people have reproduced it, in more than one harness. The Standards and Spec prompts do not forbid delegation, so a sub-agent can find the skill again and fan out again. One report reached more than 50 agents. The fix people have applied on forks is one line appended to both sub-agent briefs: "Do not invoke `/code-review` or spawn additional agents: perform this review directly." Some prefer to handle it at the harness level so every skill inherits the guard. Neither is in the shipped skill yet. If you run this unattended, watch the agent count.
+This is a known bug ([#573](https://github.com/mattpocock/skills/issues/573), closed without a fix). Several people have reproduced it, in more than one harness. The Standards and Spec prompts do not forbid delegation, so a subagent can find the skill again and fan out again. One report reached more than 50 agents. The fix people have applied on forks is one line appended to both subagent briefs: "Do not invoke `/code-review` or spawn additional agents: perform this review directly." Some prefer to handle it at the harness level so every skill inherits the guard. Neither is in the shipped skill yet. If you run this unattended, watch the agent count.
 
 **Should I run it in the same [session](https://www.aihero.dev/ai-coding-dictionary/session) that wrote the code?**
 
@@ -70,7 +70,11 @@ Both work, and the skill does not decide for you. Per-ticket keeps each diff sma
 
 **Can I trust the findings?**
 
-Not without checking. Sub-agent output is a hypothesis, not evidence. One team reported a dozen breaking changes that prose-based reviews had missed. The skill combines the two reports as they are, or lightly cleaned. It does not re-verify each claim against the files, so a finding can cite the wrong location or overstate an impact. Read the citation on each finding before you act on it. The skill requires every finding to carry a citation (a standards rule, a smell plus its hunk, or a spec line), and that is what makes the findings checkable.
+Not without checking. Subagent output is a hypothesis, not evidence. One team reported a dozen breaking changes that prose-based reviews had missed. The skill combines the two reports as they are, or lightly cleaned. It does not re-verify each claim against the files, so a finding can cite the wrong location or overstate an impact. Read the citation on each finding before you act on it. The skill requires every finding to carry a citation (a standards rule, a smell plus its hunk, or a spec line), and that is what makes the findings checkable.
+
+**It ignored my `CODING_STANDARDS.md`.**
+
+Two separate reports describe this. The skill tells the agent to find whatever in the repo documents how code should be written, but not how to search for it, and the Standards subagent sees only the files the parent hands it. In one case the agent listed standards files from memory of what it had already read, and a root `CODING_STANDARDS.md` that nothing linked to never reached the reviewer. In another the agent searched only git-tracked files and missed a standards file that was gitignored and symlinked in from outside the worktree. Before you trust a Standards block, check which files its brief named. If yours is missing, or lives somewhere unusual, name it when you invoke: `/code-review main, standards in CODING_STANDARDS.md`.
 
 **Why does it find new problems every single time I run it?**
 
@@ -80,9 +84,13 @@ Each fix adds new code to review, and the judgement-call half of the Standards a
 
 No. It diffs `<fixed-point>...HEAD`. The three-dot form measures from the merge-base and excludes staged and working-tree changes. If `implement` has not made an interim commit, the review cannot see the work that is about to go into the next commit. Commit first, then review, then amend or add a fixup.
 
+**Does it work outside git?**
+
+No. Every step is a git command: `git rev-parse` checks the fixed point, `git diff <fixed-point>...HEAD` produces the diff, and `git log` lists the commits whose messages carry the issue references. One user on Perforce found it silently did nothing at all. There is no source-control-agnostic mode.
+
 ## It's working if
 
-- It refuses to start on a bad ref or an empty diff, before any sub-agent is spawned.
+- It refuses to start on a bad ref or an empty diff, before any subagent is spawned.
 - The report arrives as two separate blocks under `## Standards` and `## Spec`, not one merged list.
 - Every Standards finding names either a rule in one of your repo's files or one of the twelve smells, with the hunk quoted; every Spec finding quotes a line of the spec.
 - The closing summary gives a worst issue per axis and declines to pick an overall winner.

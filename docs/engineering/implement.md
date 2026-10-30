@@ -2,7 +2,7 @@
 
 `implement` builds work that has already been decided. You point it at a [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket), a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), or the plan you just agreed in the conversation, and it writes the code, drives [tdd](https://aihero.dev/skills-tdd) at the seams, typechecks as it goes, runs [code-review](https://aihero.dev/skills-code-review) at the end, and commits to the current branch.
 
-It never reopens the plan. There is no interview, no clarifying round, no proposal of a different approach. Whatever was settled upstream is the input, and the skill's whole job is to turn that into a commit. That is what separates it from typing "build this" at a fresh [agent](https://www.aihero.dev/ai-coding-dictionary/agent), which often redesigns the work while it builds it.
+It never reopens the plan. There is no interview, no clarifying round, no proposal of a different approach. Whatever was settled upstream is the input, and the [skill](https://www.aihero.dev/ai-coding-dictionary/skill)'s whole job is to turn that into a commit. That is what separates it from typing "build this" at a fresh [agent](https://www.aihero.dev/ai-coding-dictionary/agent), which often redesigns the work while it builds it.
 
 ## When to reach for it
 
@@ -12,7 +12,7 @@ Where the work currently lives decides whether this is the right skill:
 
 | The work is… | Reach for |
 | --- | --- |
-| A ticket on the tracker | `/implement #42`, one ticket per [session](https://www.aihero.dev/ai-coding-dictionary/session), [clearing](https://www.aihero.dev/ai-coding-dictionary/clearing) context between tickets |
+| A ticket on the tracker | `/implement #42`, one ticket per [session](https://www.aihero.dev/ai-coding-dictionary/session), [clearing](https://www.aihero.dev/ai-coding-dictionary/clearing) [context](https://www.aihero.dev/ai-coding-dictionary/context) between tickets |
 | A spec, not yet split up, and the build spans sessions | [to-tickets](https://aihero.dev/skills-to-tickets) first, then `/implement` per ticket |
 | A spec, and the build is small | `/implement` directly against the spec |
 | Only in the conversation you just had, and it's still small | `/implement` right there, in the same window |
@@ -52,6 +52,12 @@ The "pre-agreed" part matters, and it is also the skill's weakest point. Nothing
 
 Correct, and expected. `implement` has no completion step. It ends at the commit and never touches the work item. This is the same on GitHub Issues and on the local markdown tracker, so it is not a tracker integration problem. It also does not act on the findings `code-review` produced, and does not tick the `- [ ]` boxes on the originating issue. Close the ticket and reconcile the criteria yourself. This matters most on a dependency chain, because `to-tickets` defines the frontier as tickets whose blockers are all closed. If nothing gets closed, nothing ever becomes visibly unblocked.
 
+**It never ran `/tdd` or `/code-review`, or it ran a different `code-review`.**
+
+Both happen, and they have separate causes. The skill names its two sub-steps in prose ("use /tdd where possible", "use /code-review"), and naming a skill in prose does not reliably make the agent load it. The `tdd` step is also soft by design: it fires only "at pre-agreed seams", so with no agreed seams the run just writes the code. The review sits at the very end of a long run, where it is the first instruction to drop. One user reported that on their runs, TDD and code-review "almost never run" ([#479](https://github.com/mattpocock/skills/issues/479)).
+
+The other case is Claude Code specific. Claude Code now ships its own built-in `/code-review`, and under the plugin this set's review is only reachable as `mattpocock-skills:code-review`. The bare name inside `implement` can resolve to the built-in, so the run ends with a different review, or the call is refused with a `disable-model-invocation` error that has nothing to do with this skill ([#809](https://github.com/mattpocock/skills/issues/809), [#1215](https://github.com/mattpocock/skills/issues/1215)). Both are open. Until they are fixed, say it in the invocation ("call the Skill tool for `tdd` at each seam, and for `mattpocock-skills:code-review` after committing"), or run `/mattpocock-skills:code-review` yourself once the commit exists.
+
 **Can I point it at all my tickets at once, or run several in parallel?**
 
 Not with `/implement`: one invocation, one ticket. For a whole spec in one run, use [implement-spec](https://aihero.dev/skills-implement-spec), which gives each ticket on the ready frontier to a [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent) in its own worktree, then merges the results onto one integration branch. Running several `/implement` sessions side by side in one checkout is worse than unsupported. One field report describes a `git commit --amend` in one session landing on another session's commit, a stash vanishing from `refs/stash`, and commits landing on the wrong branch, all in a single afternoon across three issues. The sessions share one working directory, one index, and one HEAD. Users work around this with git worktrees, but `refs/stash` is shared across worktrees too, so worktrees alone do not fix the stash case.
@@ -64,11 +70,11 @@ Not built in. It commits straight to the current branch. Several people find thi
 
 `code-review` reviews `git diff <fixed-point>...HEAD`, which excludes staged and working-tree changes. `implement` runs it before committing, so unless an interim commit already exists there is nothing in that diff to review. Multiple people have reported this and it is unfixed on both sides. Commit first, then review against the point you branched from.
 
-Separately, some people do not want the review inside the run at all, because an agent reviewing the code it just wrote is biased toward its own solution. Running [code-review](https://aihero.dev/skills-code-review) in a fresh session against a fixed point is a valid alternative. The same bias is why that skill runs its two axes in separate sub-agents.
+Separately, some people do not want the review inside the run at all, because an agent reviewing the code it just wrote is biased toward its own solution. Running [code-review](https://aihero.dev/skills-code-review) in a fresh session against a fixed point is a valid alternative. The same bias is why that skill runs its two axes in separate subagents.
 
-**One ticket burned 150k tokens. Am I using it wrong?**
+**One ticket burned 150k [tokens](https://www.aihero.dev/ai-coding-dictionary/token). Am I using it wrong?**
 
-Probably not. The ticket is more likely too big. A run does codebase exploration, a red-green loop per seam, a full suite, and a review, so a non-trivial ticket exceeding 100k [tokens](https://www.aihero.dev/ai-coding-dictionary/token) is normal rather than a sign something broke. The fix is upstream. Right-size the tickets in [to-tickets](https://aihero.dev/skills-to-tickets) so each fits one fresh window. If a single ticket keeps going over, split it rather than raising the [effort](https://www.aihero.dev/ai-coding-dictionary/effort) level.
+Probably not. The ticket is more likely too big. A run does codebase exploration, a red-green loop per seam, a full suite, and a review, so a non-trivial ticket exceeding 100k tokens is normal rather than a sign something broke. The fix is upstream. Right-size the tickets in [to-tickets](https://aihero.dev/skills-to-tickets) so each fits one fresh window. If a single ticket keeps going over, split it rather than raising the [effort](https://www.aihero.dev/ai-coding-dictionary/effort) level.
 
 **`/implement #2` in a fresh session worked on something completely unrelated.**
 

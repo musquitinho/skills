@@ -2,7 +2,7 @@
 
 `setup-matt-pocock-skills` answers three questions about one repo: where issues live, what the triage labels are called, and where the domain docs sit. It records the answers as markdown files under `docs/agents/`.
 
-Those files are the only thing that varies between repos. The skills themselves are identical everywhere. They read `docs/agents/issue-tracker.md` at run time and do what it says. That is why the set is not tied to GitHub, and why you never edit a skill file to point it at another tracker. Invoking it with "link the skills to a custom issue tracker" works with anything you can connect to programmatically, with no changes to the skills.
+Those files are the only thing that varies between repos. The [skills](https://www.aihero.dev/ai-coding-dictionary/skill) themselves are identical everywhere. They read `docs/agents/issue-tracker.md` at run time and do what it says. That is why the set is not tied to GitHub, and why you never edit a skill file to point it at another tracker. Invoking it with "link the skills to a custom issue tracker" works with anything you can connect to programmatically, with no changes to the skills.
 
 It is a prompt-driven skill, not a deterministic script. It reads your `git remote`, `CLAUDE.md` and `GLOSSARY.md`, proposes what it found, and waits for you to confirm before it writes anything.
 
@@ -58,6 +58,10 @@ No. GitHub, GitLab and local markdown under `.scratch/` all ship as ready-made t
 
 The direct answer after v1.1 was yes. The skill's own closing message is softer. It tells you to re-run only to switch trackers or start over. Both are defensible. The seed templates change between versions, so a `docs/agents/issue-tracker.md` from an older release can go out of date against the skills that now read it. If a downstream skill does something different from what the docs describe, re-run setup. It is cheap.
 
+**I updated to v1.3 and the skills ignore my `CONTEXT.md`.**
+
+v1.3 renamed the domain-doc convention: `CONTEXT.md` is now `GLOSSARY.md`, and `CONTEXT-MAP.md` is now `GLOSSARY-MAP.md`. The skills look only for the new names, so an old `CONTEXT.md` is silently ignored, and the first term [domain-modeling](https://aihero.dev/skills-domain-modeling) resolves starts a fresh `GLOSSARY.md` beside it. Nothing warns you at update time; the only migration note is in the changelog ([issue #1153](https://github.com/mattpocock/skills/issues/1153), [issue #1176](https://github.com/mattpocock/skills/issues/1176)). A re-run of setup does not catch it either, because its exploration looks only for the new names. Rename by hand while no session is running (`git mv CONTEXT.md GLOSSARY.md`, and the map file if you have one), then check that `docs/agents/domain.md` no longer names the old file.
+
 **It wrote to `CLAUDE.md`, but I'm on Codex.**
 
 This is a known gap, and still open. The file-selection rule is "edit `CLAUDE.md` if it exists, else `AGENTS.md`". It checks which file exists, not which [harness](https://www.aihero.dev/ai-coding-dictionary/harness) is running. In a repo with a `CLAUDE.md` left over from Claude Code, the skill writes its `## Agent skills` block to a file Codex never reads. Users have two workarounds: move the block to `AGENTS.md` by hand, or keep `AGENTS.md` canonical and make `CLAUDE.md` a one-line pointer at it. If neither file exists, the skill asks you which to create instead of picking one. This has confused people who expected it to decide.
@@ -68,6 +72,10 @@ It doesn't. `docs/agents/triage-labels.md` is a *mapping*: it tells `/triage` wh
 
 - If your tracker already uses the canonical names, the mapping is an identity table and there is nothing to configure. That is the intended common case, not a missing step.
 - This skill does not create [wayfinder](https://aihero.dev/skills-wayfinder)'s `wayfinder:map` and `wayfinder:<type>` labels either, and `gh issue create --label <missing>` fails instead of creating the label. Create them by hand before the first wayfinder run on a GitHub repo.
+
+**It never wrote `triage-labels.md`, even though `triage` is installed.**
+
+This is a known open bug on the Claude Code plugin ([issue #812](https://github.com/mattpocock/skills/issues/812)). Setup writes the label file only when it detects `triage`, and one of its checks is whether `triage` appears in the agent's list of available skills. `triage` is user-invoked, and that is exactly what keeps it out of the list, so the check fails and setup skips the labels section without a warning. The run looks complete, and `/triage` later tells you to run setup again. Until it is fixed, tell the agent during the run that `triage` is installed, so it asks the labels question and writes the file.
 
 **Can I configure the other skills' behaviour here ([grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) cadence, question format, tone)?**
 

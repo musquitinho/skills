@@ -1,6 +1,6 @@
 ## What it does
 
-`retro` looks back over a coding [session](https://www.aihero.dev/ai-coding-dictionary/session) and suggests improvements to the agent's **[environment](https://www.aihero.dev/ai-coding-dictionary/environment)**, so the next run goes better. It reads the session's own record (the current one by default, or one you point it at in the session logs). It finds the moments where the agent struggled, and gives you a list of candidate fixes, most severe first.
+`retro` looks back over a coding [session](https://www.aihero.dev/ai-coding-dictionary/session) and suggests improvements to the [agent](https://www.aihero.dev/ai-coding-dictionary/agent)'s **[environment](https://www.aihero.dev/ai-coding-dictionary/environment)**, so the next run goes better. It reads the session's own record (the current one by default, or one you point it at in the session logs). It finds the moments where the agent struggled, and gives you a list of candidate fixes, most severe first.
 
 It changes the environment, not the code. Take the bug the agent shipped, the file it needed twenty [tool calls](https://www.aihero.dev/ai-coding-dictionary/tool-call) to find, or the rule the reviewer missed. `retro` does not fix any of them directly. It asks what in the repo let them happen, and proposes the check, pointer, or standard that prevents them next time. It also only proposes. Nothing changes until you pick a candidate.
 
@@ -24,7 +24,7 @@ Each candidate belongs to one category, and the category decides where the fix g
 | A steering file is full of lines that change nothing | Delete the **no-ops** |
 | The agent needed information it couldn't reach | Widen its access: tee the dev server log to a file, give read-only access to a service |
 
-The leading idea is that standards belong to the **reviewer**, not the implementer. The implementing agent has the most context pressure, because it explores, writes code, and debugs failures. The reviewing agent gets a diff and nothing else. So a new rule goes where there is room to apply it, which is review. It never goes in [AGENTS.md](https://www.aihero.dev/ai-coding-dictionary/agents-md), which loads into every session's [context window](https://www.aihero.dev/ai-coding-dictionary/context-window) whether it is relevant or not.
+The leading idea is that standards belong to the **reviewer**, not the implementer. The implementing agent has the most [context](https://www.aihero.dev/ai-coding-dictionary/context) pressure, because it explores, writes code, and debugs failures. The reviewing agent gets a diff and nothing else. So a new rule goes where there is room to apply it, which is review. It never goes in [AGENTS.md](https://www.aihero.dev/ai-coding-dictionary/agents-md), which loads into every session's [context window](https://www.aihero.dev/ai-coding-dictionary/context-window) whether it is relevant or not.
 
 Before `retro` writes any rule, it classifies the violation. A **mechanical** violation (a banned API, an import shape, a file-location rule) gets a deterministic check, because a check can fail and a sentence in a standards file can't. Only real judgement calls, which no linter can enforce, become prose. If the repo has no guardrail at all (no pre-commit hook, and no CI job that runs lint, typecheck, and tests), `retro` reports that as a finding of its own.
 
@@ -32,7 +32,7 @@ Before `retro` writes any rule, it classifies the violation. A **mechanical** vi
 
 **Does it write the lint rule itself, or wait for a yes? Can I wire it to run after every session?**
 
-It waits. `retro` only proposes. Nothing changes until you pick a candidate, so it edits nothing by hand and installs no hook automatically. This is deliberate. One user asked for exactly this after being "burned by auto-hooks that blocked good changes." It takes judgement to decide what deserves a permanent check, so the skill stays [human-in-the-loop](https://www.aihero.dev/ai-coding-dictionary/human-in-the-loop) and user-invoked. Some users do run it after every implementation run. But a smooth session has little to teach, so a run after every session mostly produces rules nobody needed. There is no dry-run mode. A proposed check is code like any other, so try it against the repo before you let it block merges.
+It waits. `retro` only proposes. Nothing changes until you pick a candidate, so it edits nothing by hand and installs no hook automatically. This is deliberate. One user asked for exactly this after being "burned by auto-hooks that blocked good changes." It takes judgement to decide what deserves a permanent check, so the [skill](https://www.aihero.dev/ai-coding-dictionary/skill) stays [human-in-the-loop](https://www.aihero.dev/ai-coding-dictionary/human-in-the-loop) and user-invoked. Some users do run it after every implementation run. But a smooth session has little to teach, so a run after every session mostly produces rules nobody needed. There is no dry-run mode. A proposed check is code like any other, so try it against the repo before you let it block merges.
 
 **Won't this pile up lint rules forever? Does it ever suggest removing one?**
 
@@ -53,6 +53,14 @@ Usually not, and `retro` pushes back on this more than anything else. A line in 
 **My setup mentions `CODING_STANDARDS.md` and I don't have one. Where does it come from?**
 
 No skill ships the file. The first time a session finds a judgement-call rule for the reviewer, `retro` proposes to create it. After you accept, [code-review](https://aihero.dev/skills-code-review) reads it. Any other standards doc you already keep, such as `CONTRIBUTING.md`, works the same way.
+
+**I installed the Claude Code plugin and `/retro` isn't there.**
+
+Check the plugin's version. `retro` joined the plugin in v1.3.0. Before that it sat in the `in-progress/` bucket, which the plugin does not ship. Users have found the official marketplace still serving 1.2.3, with the update button showing nothing newer, so a fresh install or an update can still leave you without it ([#1158](https://github.com/mattpocock/skills/issues/1158), [#1164](https://github.com/mattpocock/skills/issues/1164)). If you see 1.2.3, the skill is not missing from your setup; it is missing from that release.
+
+**It reported that `writing-for-agents` is missing.**
+
+`retro` depends on it. Its first step loads [writing-for-agents](https://aihero.dev/skills-writing-for-agents) as the style guide for anything it proposes to write, and that load happens on every run by decision, not only when it writes. If you installed a subset of the skills without it, the load fails, and one user saw the run report the gap as one of its own findings ([#1301](https://github.com/mattpocock/skills/issues/1301)). Install `writing-for-agents` alongside `retro`.
 
 **How is it different from `improve-codebase-architecture`?**
 

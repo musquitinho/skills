@@ -28,11 +28,15 @@ The door call is the leading idea. It changes "is this safe to merge?" from a gu
 
 **Can I trust the agent's own door call?**
 
-Not blindly, and that is the point of stating it. The agent that wrote the change is the one grading it, so be most suspicious when it says "two-way, small blast radius". The diff also often hides whether a change can be reversed. As one user put it, "rolling back a commit won't unsend a batch of emails", and a flagged rollout stays two-way only until the first write lands in the new format. The skill gives the agent a definition (destructive actions and hard-to-reverse decisions are one-way), not a checklist, so check the Merge Danger line most carefully. Two things help: make sure the agent has the [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) in front of it, not just the diff, and write down the changes your repo always treats as one-way (schema migrations, anything that ships outward or deletes) where the agent will read them before it makes the call.
+Not blindly, and that is the point of stating it. The agent that wrote the change is the one grading it, so be most suspicious when it says "two-way, small blast radius". The diff also often hides whether a change can be reversed. As one user put it, "rolling back a commit won't unsend a batch of emails", and a flagged rollout stays two-way only until the first write lands in the new format. The [skill](https://www.aihero.dev/ai-coding-dictionary/skill) gives the agent a definition (destructive actions and hard-to-reverse decisions are one-way), not a checklist, so check the Merge Danger line most carefully. Two things help: make sure the agent has the [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) in front of it, not just the diff, and write down the changes your repo always treats as one-way (schema migrations, anything that ships outward or deletes) where the agent will read them before it makes the call.
 
 **Does it open the PR for me?**
 
 No. `pr` covers only the body. [implement](https://aihero.dev/skills-implement) ends by committing to the current branch. Requests for a skill or option that opens the PR (a `/to-pr`, or `implement` opening a PR instead of committing) are still open proposals. One user's workaround is a one-sentence local override of `implement` that tells it to open a PR. [implement-spec](https://aihero.dev/skills-implement-spec) is the exception: it opens a draft PR when your issue tracker closes work through PRs or when you ask for one. Because `pr` is model-invoked, the agent uses this shape for the body whenever you ask it to open a PR.
+
+**It fires on every "create pr". Can I make it run only when I type `/pr`?**
+
+Not with a setting. Its trigger is "Use when writing a PR body", and nearly every PR the agent opens has one, so a plain "create pr" loads it every time. One user asked for it to become user-invoked like the opinionated workflow skills ([#1262](https://github.com/mattpocock/skills/issues/1262)). That issue is closed and the skill is still model-invoked, so every PR body the agent writes comes out in this shape without you asking. If you want it on demand only, tell the agent in your own `CLAUDE.md` or `AGENTS.md` when not to use it. Adding `disable-model-invocation: true` to your copy of the skill also works, but `npx skills update` overwrites that edit.
 
 **Won't it just produce another wall of text and diagrams?**
 
@@ -44,7 +48,7 @@ Neither, by default. `pr` has its own template and does not look for `.github/pu
 
 **Is the output HTML? Why doesn't the Mermaid diagram render?**
 
-The output is a markdown PR body, not an HTML page. GitHub and GitLab render Mermaid blocks in a PR description, but a terminal does not, so the diagram looks like raw text while the agent is still showing it to you locally. Users on CLI harnesses have worked around that with an ASCII Mermaid renderer or by having the agent attach an HTML version to the PR. Mermaid is one of six views. A call tree, file tree or shaped diff reads the same everywhere.
+The output is a markdown PR body, not an HTML page. GitHub and GitLab render Mermaid blocks in a PR description, but a terminal does not, so the diagram looks like raw text while the agent is still showing it to you locally. Users on CLI [harnesses](https://www.aihero.dev/ai-coding-dictionary/harness) have worked around that with an ASCII Mermaid renderer or by having the agent attach an HTML version to the PR. Mermaid is one of six views. A call tree, file tree or shaped diff reads the same everywhere.
 
 **Can it sort through the review comments that come back?**
 

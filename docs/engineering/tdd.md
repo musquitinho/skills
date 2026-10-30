@@ -18,7 +18,7 @@ Reach for it when there is a concrete behaviour to build, with an input and an o
 | You have a [spec](https://www.aihero.dev/ai-coding-dictionary/spec) or [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) and want the whole build run for you | [implement](https://aihero.dev/skills-implement), which drives `tdd` per ticket |
 | Config, wiring, glue, type annotations, straight CRUD delegation | Nothing here fits well; see the open gap below |
 
-That last row is a real gap. The skill decides *where* the seams go, but nothing in it decides *whether* a change is worth the loop at all. If you run it on a change with no independent source of truth to assert against, you get a test that restates the implementation. That is the tautological anti-pattern the skill warns about, reached from the other direction. It is [issue #746](https://github.com/mattpocock/skills/issues/746), and it is open. Until it closes, you make that call yourself, or write the rule into your `CLAUDE.md`.
+That last row is a real gap. The [skill](https://www.aihero.dev/ai-coding-dictionary/skill) decides *where* the seams go, but nothing in it decides *whether* a change is worth the loop at all. If you run it on a change with no independent source of truth to assert against, you get a test that restates the implementation. That is the tautological anti-pattern the skill warns about, reached from the other direction. It was raised as [issue #746](https://github.com/mattpocock/skills/issues/746) and closed without a change, so you make that call yourself, or write the rule into your `CLAUDE.md`.
 
 ## Prerequisites
 
@@ -57,6 +57,10 @@ This is the most-reported friction with the skill ([issue #607](https://github.c
 **It wrote the implementation before the test, even though the skill says red first.**
 
 It happens. One user pushed the [model](https://www.aihero.dev/ai-coding-dictionary/model) on it and got an unusually honest answer: "I knew the skill said 'one test at a time, watch it fail for the right reason'. I read it. I just defaulted to my normal habit." The skill accepts this. No instruction makes an agent comply 100% of the time, and stricter wording restricts the agent's creativity for little gain. The loop is worth running even when the agent does not follow it strictly, because the results are still better overall. If strict adherence matters for a particular slice, watch the run rather than trusting the skill to enforce it.
+
+**It was fixing a bug, and the red test failed only because the fix's new function didn't exist yet.**
+
+That is not a real red for a bug fix. A compile error against a missing symbol proves the fix is absent, not that the bug exists, so the bug is never reproduced and no regression guard gets written. One user saw the agent report "verified red → green" off four compile errors, with the original bug never asserted ([issue #1210](https://github.com/mattpocock/skills/issues/1210)). For a new feature, a missing symbol is a fair first red. For a bug it is not, and the skill does not yet draw that line. Until it does, say it in the prompt: the first test runs against the existing code and fails on the wrong behaviour.
 
 **Should it write browser or end-to-end tests first?**
 

@@ -75,7 +75,7 @@ No. They are already agent-ready. `to-tickets` applies the `ready-for-agent` lab
 Only if you have inbound work. `triage` is older than that flow and does a different job: it handles reports other people filed. If everything in your tracker came from your own planning, you will rarely use it. If you maintain anything public, or your team files bugs to you, it is where that work starts. The main use is open-source repos that take issues from external contributors.
 
 **The agent tried to apply `ready-for-agent` and `gh` said the label doesn't exist.**
-This is a known open bug ([#616](https://github.com/mattpocock/skills/issues/616)). `setup-matt-pocock-skills` writes the label vocabulary into `docs/agents/triage-labels.md`, but does not create the labels in your tracker. Create the five state labels and two category labels yourself, once, with `gh label create` or the tracker's UI, and the error stops. The issue links to a community fix branch that has not been merged.
+This is a known bug. [#616](https://github.com/mattpocock/skills/issues/616) is closed as fixed, but if your copy of `setup-matt-pocock-skills` writes the label vocabulary into `docs/agents/triage-labels.md` and never creates the labels in your tracker, you have a version without the fix ([#1202](https://github.com/mattpocock/skills/issues/1202) is still open). Create the five state labels and two category labels yourself, once, with `gh label create` or the tracker's UI, and the error stops.
 
 **Five states aren't enough. What about blocked, or deferred, or implemented?**
 This is the most-filed gap on the skill. It comes in three forms:
@@ -94,6 +94,9 @@ You can ask, but watch what it reads. The "show what needs attention" pass is a 
 
 **Does it work with Linear, or anything other than GitHub Issues?**
 Yes. The tracker is config, not a hard-coded assumption. People run it against Linear (through the `linear` CLI), GitLab, and plain markdown files under `.scratch/`. A common split is Linear for issues and planning, and GitHub for code and PRs. Skills that say "issue tracker" then map to Linear, and skills that say "PR" map to GitHub. The local-markdown tracker has an open template bug: the generated file can contain the acceptance criteria twice, once at the top level and once inside the agent brief ([#200](https://github.com/mattpocock/skills/issues/200)).
+
+**My reporters find the `needs-info` comments hard to read.**
+One team reported this ([#863](https://github.com/mattpocock/skills/issues/863)). Their non-developer reporters called the questions "hard to read" and "incredibly draining". The template itself is short (what is established, what is still needed), but nothing caps the length or the reading level, and a question costs the agent nothing to write and the reporter real effort to answer. Ask to see the comment before it posts, and cut it down then. To make that stick, put a plain-language rule in your `CLAUDE.md`: few questions, each answerable in a line, no internal jargon.
 
 ## It's working if
 

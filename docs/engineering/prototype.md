@@ -8,9 +8,9 @@ Throwaway is a constraint on how the code is *written*, not a promise to destroy
 
 Type `/prototype`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it automatically when a task fits.
 
-Reach for it the moment you hit a question you can't settle by talking: a state machine whose edge cases you can't hold in your head, a screen you can't picture until you see three versions side by side. [Grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) sessions grow long on these questions. The agent rephrases, you guess, and the scope grows. Stop grilling, build the throwaway version, look at it, then answer in one line. If instead something already built is misbehaving and you want to know why, use [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs); prototyping explores what to build, not why the built thing is broken.
+Reach for it the moment you hit a question you can't settle by talking: a state machine whose edge cases you can't hold in your head, a screen you can't picture until you see three versions side by side. [Grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) [sessions](https://www.aihero.dev/ai-coding-dictionary/session) grow long on these questions. The agent rephrases, you guess, and the scope grows. Stop grilling, build the throwaway version, look at it, then answer in one line. If instead something already built is misbehaving and you want to know why, use [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs); [prototyping](https://www.aihero.dev/ai-coding-dictionary/prototyping) explores what to build, not why the built thing is broken.
 
-You will also arrive here without choosing to. [wayfinder](https://aihero.dev/skills-wayfinder) files `prototype` decision [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) on its map, and you work one with this skill.
+You will also arrive here without choosing to. [wayfinder](https://aihero.dev/skills-wayfinder) files `prototype` decision [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) on its map, and you work one with this [skill](https://www.aihero.dev/ai-coding-dictionary/skill).
 
 ## Two branches
 
@@ -32,7 +32,7 @@ The **prototype** is the runnable evidence the answer came from, and you do not 
 ## Common questions
 
 **Wait, isn't the prototype supposed to be deleted?**
-Not any more. It used to be: build it, keep the answer, bin the code. The strongest objection to that was not about speed. It was *who picks up the work next [session](https://www.aihero.dev/ai-coding-dictionary/session), and what do they have to work from?* A prose summary of a prototype loses the thing that made it convincing. So the skill now treats the prototype as a [primary source](https://www.aihero.dev/ai-coding-dictionary/primary-source). It lands on a `prototype/<name>` branch out of main and the implementation issue points at it. What changed is where the code lives, not the discipline; it still never merges into main.
+Not any more. It used to be: build it, keep the answer, bin the code. The strongest objection to that was not about speed. It was *who picks up the work next session, and what do they have to work from?* A prose summary of a prototype loses the thing that made it convincing. So the skill now treats the prototype as a [primary source](https://www.aihero.dev/ai-coding-dictionary/primary-source). It lands on a `prototype/<name>` branch out of main and the implementation issue points at it. What changed is where the code lives, not the discipline; it still never merges into main.
 
 **It used to build a terminal app. Where did that go?**
 The logic branch now emits a single shareable HTML file instead. A terminal app can only be driven by someone with the repo cloned and a runtime installed, which rules out the people whose opinion the prototype needs: the designer, the PM, the domain expert who knows what the state model is supposed to mean. One self-contained file that opens by double-click and still works after being emailed can be driven by anyone. The pure logic module underneath is unchanged, and is still the part you move into the real code.
@@ -40,14 +40,23 @@ The logic branch now emits a single shareable HTML file instead. A terminal app 
 **An agent told me to `/prototype` when I should have been implementing.**
 This is a known naming problem. An agent that does not know the flow reads `prototype`, a generic and appealing word, as "the obvious next step" once tickets exist. So agents recommend it by name even where the design was settled in conversation. If you already know what to build, the next step is `/implement`, per ticket. Reach for a prototype only when a specific design question is unresolved and talking won't resolve it.
 
+**I approved a UI prototype, but what got built looked nothing like it.**
+The answer the skill records is "the verdict and the question it settled", and that is too little for a UI. You approve a UI prototype by using it, so what it settles is a pile of small decisions: what each control does, what each panel holds, roughly how it looks. Those stay in the prototype's code, which every later step rightly treats as throwaway, and `/to-spec` and `/to-tickets` carry prototype material over mainly as logic snippets. One user ran four UI rounds, then a full spec, tickets and build, with every test and review green, and counted sixteen visible departures from the approved prototype ([#1306](https://github.com/mattpocock/skills/issues/1306)). Until the skills carry this over, write the settled details down yourself when you record the answer, and point each UI ticket at the prototype branch as the reference to match.
+
+**The `prototype/<name>` branches keep piling up. Can I delete them?**
+Not without breaking something. The implementation issue points at the branch, so deleting it leaves a dead link, and no skill ever cleans them up. One user called these branches "not actually throwaway" for exactly that reason ([#1020](https://github.com/mattpocock/skills/issues/1020)). The proposal there is to keep prototypes in a folder on main instead. It is open, so for now the branches accumulate by design.
+
+**`/prototype` says "unknown skill" in Claude Code.**
+Claude Code bundles a hidden built-in skill called `prototype`, and even before it is switched on it takes the short name ([#1019](https://github.com/mattpocock/skills/issues/1019)). Type `/mattpocock-skills:prototype` instead. Because this skill is model-invoked, asking in plain words ("prototype this state model") also reaches it.
+
 **Should I prototype the whole application before building any of its production features (say, to demo it to prospects)?**
 That is a different artifact that happens to share this skill's name. A prototype here is scoped to one question, and "what is the whole app?" isn't one. A full-app prototype has no natural stopping point, so it drifts into being the production app: the cleanup pass never happens, and code written under prototype rules (no tests, no error handling) ends up in front of users. If you need a sales demo, build it as a demo on purpose and be explicit that none of it is production. If you need to settle a design question, cut it down to that question.
 
 **How do I run it in its own session?**
 A prototype lives in its own directory and generates a lot of [context](https://www.aihero.dev/ai-coding-dictionary/context) you don't want in the thread that asked the question, so run it somewhere else and bring back only the answer. Use [handoff](https://aihero.dev/skills-handoff) to move the work into that session and to bring the answer back.
 
-**Isn't this the fastest possible way to burn tokens?**
-It can be, if you prototype questions you could have answered by talking, or let one prototype sprawl across a whole feature. The comparison that matters isn't tokens against zero; it's [tokens](https://www.aihero.dev/ai-coding-dictionary/token) against building the wrong state model and finding out after it has production callers. Keep the question narrow and the run short, and the spend stays proportionate.
+**Isn't this the fastest possible way to burn [tokens](https://www.aihero.dev/ai-coding-dictionary/token)?**
+It can be, if you prototype questions you could have answered by talking, or let one prototype sprawl across a whole feature. The comparison that matters isn't tokens against zero; it's tokens against building the wrong state model and finding out after it has production callers. Keep the question narrow and the run short, and the spend stays proportionate.
 
 ## It's working if
 

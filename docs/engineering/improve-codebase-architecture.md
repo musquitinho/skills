@@ -21,9 +21,9 @@ It is not a step in the main build loop. You run it periodically to queue up mor
 
 Where it is confusable with siblings:
 
-- To design one module you have already chosen, use [codebase-design](https://aihero.dev/skills-codebase-design). This skill finds the module to work on, and `codebase-design` is where you design it.
+- To design one module you have already chosen, use [codebase-design](https://aihero.dev/skills-codebase-design). This [skill](https://www.aihero.dev/ai-coding-dictionary/skill) finds the module to work on, and `codebase-design` is where you design it.
 - For a whole effort too big to hold in one session, use [wayfinder](https://aihero.dev/skills-wayfinder).
-- For "this specific thing is broken," use [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs). It sends you back here when the real finding is that there is no good seam to lock the bug down.
+- For "this specific thing is broken," use [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs). If its finding is that there is no good seam to lock the bug down, come back here.
 
 ## Prerequisites
 
@@ -65,6 +65,10 @@ Yes. Say so when you invoke it ("don't grill me, just show the report"). This is
 
 The report loads Tailwind and Mermaid from CDNs, so it needs network access when you open it. If something blocks those scripts, the page breaks with no error. In the reported case, a security hook required SRI hashes. The agent added them, but the CDN served different bytes to the browser than to the `curl` that computed the hash, so the browser blocked the script. Offline and locked-down environments have the same problem. The agent cannot see it, because it never renders the page. As a workaround, ask for inline CSS and hand-built SVG diagrams instead of the CDN setup. This is an open issue.
 
+**One diagram shows a Mermaid syntax error instead of a picture.**
+
+The model writes the Mermaid by hand, and some of its syntax is easy to get wrong. In the reported case, a dotted arrow's label contained a period (`S -.walks variable.pending.-> FV`). Mermaid ends that kind of label at the first `.`, so it could not parse the rest of the line, while the other diagrams on the page drew fine ([#1256](https://github.com/mattpocock/skills/issues/1256)). Ask the agent to rewrite the edge labels in pipe form (`-->|"label"|` or `-.->|"label"|`), which tolerates any text. A fix that makes pipe form the rule is proposed but not merged.
+
 **It gave me twelve candidates. Do I work through them in the same session or start a new one?**
 
 Use one candidate per session. If you work through several in one conversation, the [context window](https://www.aihero.dev/ai-coding-dictionary/context-window) fills with the report, the grilling, the domain-model edits and the code changes all at once. The report is only a temp file, so carry the candidate forward, not the file. Pick one, grill it, and take the decision into `/to-spec`. Turn the rest into [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) that you can pick up separately later. Put the chosen improvement into a spec instead of going straight to implementation. People ask this often, and the skill itself documents no workflow for it.
@@ -85,9 +89,13 @@ Partly. It works well on big existing codebases that lack consistent structure, 
 
 Rarely, so know that before you start. The skill exists to output findings, so it tends to produce candidates instead of concluding that nothing is wrong. Use the strength badges to correct for this. If every candidate in a report is `Speculative`, the skill found nothing.
 
-**Does it work in Codex or another harness?**
+**We agreed on a candidate and it started doing the refactor. Is it supposed to?**
 
-Partly. The exploration step names Claude Code's `Agent` tool with `subagent_type=Explore` directly. A [harness](https://www.aihero.dev/ai-coding-dictionary/harness) without that tool may skip the parallel exploration instead of using its own equivalent. The skill still runs, but the scan is less thorough. Someone has proposed a harness-neutral rewrite, but it is not merged.
+No. No step in the skill writes code, but nothing in it forbids writing code either. One user found that in several Claude and Codex sessions, agreeing with the agent during the grilling was enough for it to start implementing, instead of updating `GLOSSARY.md` or the ADRs ([#232](https://github.com/mattpocock/skills/issues/232)). Stop it there. The decision goes into `/to-spec`, and the refactor gets built later through the normal flow, where tests and review run against it.
+
+**Does it work in Codex or another [harness](https://www.aihero.dev/ai-coding-dictionary/harness)?**
+
+Partly. The exploration step names Claude Code's `Agent` tool with `subagent_type=Explore` directly. A harness without that tool may skip the parallel exploration instead of using its own equivalent. The skill still runs, but the scan is less thorough. Someone has proposed a harness-neutral rewrite, but it is not merged.
 
 **How do I actually implement deep modules in TypeScript?**
 

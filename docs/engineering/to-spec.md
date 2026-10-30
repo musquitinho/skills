@@ -31,7 +31,7 @@ So the spec does not validate or decide anything. It records what you decided, i
 
 Before it writes anything, `to-spec` sketches the **seams** where the feature will be tested, and checks them with you. It prefers existing seams to new ones, and picks the highest seam it can. The ideal number of seams for a change is one.
 
-Other skills use those agreed seams later. [tdd](https://aihero.dev/skills-tdd) works only at seams you agreed in advance. [code-review](https://aihero.dev/skills-code-review) reviews the diff against the spec, so a seam nobody agreed to shows up as a review finding. Both connections go through this document. That is why you should take the seam conversation seriously here, and not leave it for implementation.
+Other [skills](https://www.aihero.dev/ai-coding-dictionary/skill) use those agreed seams later. [tdd](https://aihero.dev/skills-tdd) works only at seams you agreed in advance. [code-review](https://aihero.dev/skills-code-review) reviews the diff against the spec, so a seam nobody agreed to shows up as a review finding. Both connections go through this document. That is why you should take the seam conversation seriously here, and not leave it for implementation.
 
 ## Common questions
 
@@ -50,6 +50,12 @@ Give it the main map issue, `/to-spec #<map_issue>`, not the individual decision
 **Is the spec for me to review, or is it just for the agent?**
 Mostly for the agent, and it reads that way: complete, dense, and full of references. Read the seams and the out-of-scope section. In those two places, a wrong decision is cheapest to catch now and most expensive to find later. People do complain about reading the whole thing, and there is no summary mode. But if the spec surprises you, the grilling was too shallow; the spec is not too long.
 
+**My grilling session ran long and got compacted. The spec drifted from decisions I had already accepted.**
+`to-spec` can only synthesise what is still in the context window. Once [compaction](https://www.aihero.dev/ai-coding-dictionary/compaction) has summarised the early part of the conversation, those decisions survive only as well as the summary did, and the spec is written from what is left. Users have reported this after interviews of 40 or more questions ([issue #853](https://github.com/mattpocock/skills/issues/853), [issue #689](https://github.com/mattpocock/skills/issues/689)). Nothing recovers what the window lost. Three things help. Persist decisions as they land, which [grill-with-docs](https://aihero.dev/skills-grill-with-docs) does when it writes `GLOSSARY.md` and ADRs mid-session. Keep the grilling small enough to finish without compaction: a session that long usually means the scope was too big, and [wayfinder](https://aihero.dev/skills-wayfinder) is the multi-session tool. And check the spec against the grilling's final summary before you accept it.
+
+**Where does the detailed technical design go? The agent wants to write an implementation plan after the spec.**
+There is no separate design or planning step in this flow. Technical design belongs in the spec's implementation-decisions section: the modules to build or change, their interfaces, schema changes, API contracts, everything except file paths, which go stale. The spec can only record design you actually discussed. If the grilling never got into implementation detail, the spec is thin there and the build becomes a black box ([issue #1102](https://github.com/mattpocock/skills/issues/1102)), so push the grilling into the technical questions before you run `/to-spec`. The "in what order" half belongs to [to-tickets](https://aihero.dev/skills-to-tickets), whose blocking edges are the sequence. One user saw the agent propose a `/planning` step on top of the spec ([issue #805](https://github.com/mattpocock/skills/issues/805)). That is not a skill in this set, and the spec plus the tickets already cover it.
+
 **Do I keep the spec frozen once tickets start, or let the agent rewrite it?**
 Nothing keeps it in sync. In practice it is a snapshot of what you knew at that moment, and it goes out of date the first time implementation teaches you something. Treat it as disposable after the work ships. Your `GLOSSARY.md` and ADRs are the files meant to last. If you learn something during implementation that should last, put it there, not in an edited spec.
 
@@ -60,7 +66,7 @@ Less well, and this is a known limitation. The template relies heavily on user s
 No to both. It reads and follows the ADRs for the area it touches, but it does not link them. It also does not search the tracker for overlapping issues before it writes, so a spec can duplicate work that someone already filed, and nothing warns you. If the area is busy, search the tracker yourself first.
 
 **`/to-tickets` couldn't read my spec: it kept truncating.**
-A tracker issue may not return a very large spec in full, and there is no local copy to use instead. To fix this, do not [clear](https://www.aihero.dev/ai-coding-dictionary/clearing) or [compact](https://www.aihero.dev/ai-coding-dictionary/compaction) between `/to-spec` and `/to-tickets`. Run them in the same window, and `/to-tickets` never has to fetch the spec again.
+A tracker issue may not return a very large spec in full, and there is no local copy to use instead. To fix this, do not [clear](https://www.aihero.dev/ai-coding-dictionary/clearing) or compact between `/to-spec` and `/to-tickets`. Run them in the same window, and `/to-tickets` never has to fetch the spec again.
 
 ## It's working if
 

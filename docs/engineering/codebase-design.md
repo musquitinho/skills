@@ -2,7 +2,7 @@
 
 `codebase-design` fixes the words you use to design a module: **module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**. It defines each one precisely, bans the loose substitutes ("component", "service", "API", "boundary"), and states the handful of principles that follow from them.
 
-It is a reference, not a process. It runs no loop, produces no artifact, and never stops to ask you a question. Every other skill that touches design uses its vocabulary. On its own, it gives you the words and stops. Know this before you invoke it. If you point a [session](https://www.aihero.dev/ai-coding-dictionary/session) at a skill with no process and no stopping rule and say "go", the agent invents a process. The questions below show what that looks like.
+It is a reference, not a process. It runs no loop, produces no artifact, and never stops to ask you a question. Every other [skill](https://www.aihero.dev/ai-coding-dictionary/skill) that touches design uses its vocabulary. On its own, it gives you the words and stops. Know this before you invoke it. If you point a [session](https://www.aihero.dev/ai-coding-dictionary/session) at a skill with no process and no stopping rule and say "go", the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) invents a process. The questions below show what that looks like.
 
 ## When to reach for it
 
@@ -43,7 +43,7 @@ The skill does *not* define depth as the ratio of implementation lines to interf
 - **The interface is the test surface.** Callers and tests cross the same seam. If you want to test *past* the interface, the module is the wrong shape.
 - **One adapter means a hypothetical seam. Two adapters means a real one.** Don't cut a seam until something varies across it. A single-adapter seam is just indirection.
 
-Two supporting files go further, and the skill reads them on demand rather than up front. [DEEPENING.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DEEPENING.md) classifies a candidate's dependencies into four categories (in-process, local-substitutable, remote-but-owned, true-external), because the category decides how you test the deepened module across its seam. [DESIGN-IT-TWICE.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DESIGN-IT-TWICE.md) starts parallel [sub-agents](https://www.aihero.dev/ai-coding-dictionary/subagent) to produce three or more radically different interfaces for the same module, then compares them on depth, locality and seam placement.
+Two supporting files go further, and the skill reads them on demand rather than up front. [DEEPENING.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DEEPENING.md) classifies a candidate's dependencies into four categories (in-process, local-substitutable, remote-but-owned, true-external), because the category decides how you test the deepened module across its seam. [DESIGN-IT-TWICE.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DESIGN-IT-TWICE.md) starts parallel [subagents](https://www.aihero.dev/ai-coding-dictionary/subagent) to produce three or more radically different interfaces for the same module, then compares them on depth, locality and seam placement.
 
 ## Common questions
 
@@ -53,11 +53,11 @@ This is the most-asked question about the skill and the skill does not answer it
 
 **I pointed a session at it and it burned 100k [tokens](https://www.aihero.dev/ai-coding-dictionary/token) redesigning things I never asked about.**
 
-This is a known problem, filed as [issue #449](https://github.com/mattpocock/skills/issues/449). The skill is model-invoked and describes itself as vocabulary, but nothing in it hard-stops an agent from treating it as a runnable process. Told to "resume in /codebase-design and drive the open decisions", an agent picked the part of the skill closest to a process: the parallel sub-agents in `DESIGN-IT-TWICE.md`. It re-explored code a previous session had already mapped, and worked for a long time before it asked anything. This skill has none of the guardrails a driver skill has (checkpoints, one question at a time, no auto-advance), because it is a reference. The workaround is to invoke a driver skill (`/grill-with-docs`, `/improve-codebase-architecture` or `/tdd`) and use `codebase-design` as its vocabulary. The issue is open.
+This is a known problem, filed as [issue #449](https://github.com/mattpocock/skills/issues/449). The skill is model-invoked and describes itself as vocabulary, but nothing in it hard-stops an agent from treating it as a runnable process. Told to "resume in /codebase-design and drive the open decisions", an agent picked the part of the skill closest to a process: the parallel subagents in `DESIGN-IT-TWICE.md`. It re-explored code a previous session had already mapped, and worked for a long time before it asked anything. This skill has none of the guardrails a driver skill has (checkpoints, one question at a time, no auto-advance), because it is a reference. The workaround is to invoke a driver skill (`/grill-with-docs`, `/improve-codebase-architecture` or `/tdd`) and use `codebase-design` as its vocabulary. The issue was closed without a change to the skill, so the workaround still applies.
 
 **Where did `design-an-interface` go? And is there an `/interface-design` skill?**
 
-This skill replaced `design-an-interface` and took over its content. Nothing is missing. Its "design it twice" technique (parallel sub-agents generating radically different designs, from Ousterhout) ships here as `DESIGN-IT-TWICE.md`. Separately, several people have asked for a dedicated `/interface-design` skill for the deep-module/thin-interface philosophy; this skill already covers that philosophy, and no separate skill is planned. If you came looking for either name, this is the page.
+This skill replaced `design-an-interface` and took over its content. Nothing is missing. Its "design it twice" technique (parallel subagents generating radically different designs, from Ousterhout) ships here as `DESIGN-IT-TWICE.md`. Separately, several people have asked for a dedicated `/interface-design` skill for the deep-module/thin-interface philosophy; this skill already covers that philosophy, and no separate skill is planned. If you came looking for either name, this is the page.
 
 **Isn't this a file-structure convention, such as folders, barrel files, feature slices?**
 
@@ -69,11 +69,11 @@ It does now, but for a long time it did not. v1.0 removed the inline deep-module
 
 **Does the design-it-twice pattern work outside Claude Code?**
 
-Not cleanly. `DESIGN-IT-TWICE.md` says "spawn 3+ sub-agents in parallel using the Agent tool", and "Agent" is the name of a Claude Code [tool](https://www.aihero.dev/ai-coding-dictionary/tool). The repo ships metadata for other [harnesses](https://www.aihero.dev/ai-coding-dictionary/harness), including Codex, and those may have no tool with that name. So the parallel-design phase is less portable than the skill's metadata suggests. [Issue #564](https://github.com/mattpocock/skills/issues/564) tracks this, and it is open.
+Yes. `DESIGN-IT-TWICE.md` used to name Claude Code's `Agent` [tool](https://www.aihero.dev/ai-coding-dictionary/tool), which other [harnesses](https://www.aihero.dev/ai-coding-dictionary/harness) such as Codex do not have. [Issue #564](https://github.com/mattpocock/skills/issues/564) made it harness-neutral: it now says only to spawn three or more subagents in parallel, so any harness that can run parallel subagents can run it.
 
 **Can I add my own concepts to the glossary, such as connascence, module secrets, [progressive disclosure](https://www.aihero.dev/ai-coding-dictionary/progressive-disclosure)?**
 
-People have proposed those. [Issue #180](https://github.com/mattpocock/skills/issues/180) adds Parnas's module secrets and Page-Jones's connascence as a naming layer for *what* is leaking across a seam, with a working diff attached; [issue #303](https://github.com/mattpocock/skills/issues/303) proposes progressive disclosure inside the implementation, so a module that is deep at its public interface also has structure inside it. Both are open and unmerged. The shipped glossary is small on purpose, and the skill itself gives the reason: consistent language is the whole point, and a term nobody uses consistently is worse than no term.
+People have proposed those. [Issue #180](https://github.com/mattpocock/skills/issues/180) adds Parnas's module secrets and Page-Jones's connascence as a naming layer for *what* is leaking across a seam, with a working diff attached; [issue #303](https://github.com/mattpocock/skills/issues/303) proposes progressive disclosure inside the implementation, so a module that is deep at its public interface also has structure inside it. Both were closed without being merged. The shipped glossary is small on purpose, and the skill itself gives the reason: consistent language is the whole point, and a term nobody uses consistently is worse than no term.
 
 ## It's working if
 

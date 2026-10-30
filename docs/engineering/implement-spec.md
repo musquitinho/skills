@@ -17,7 +17,7 @@ You invoke this by typing `/implement-spec`, and the agent won't reach for it on
 
 ## Prerequisites
 
-- **An issue tracker.** The skill reads the tickets from, and resolves them on, the tracker [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) configured. If none has been configured, it stops and tells you to run that first rather than guessing.
+- **An issue tracker.** The [skill](https://www.aihero.dev/ai-coding-dictionary/skill) reads the tickets from, and resolves them on, the tracker [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) configured. If none has been configured, it stops and tells you to run that first rather than guessing.
 - **Tickets with blocking edges**, as [to-tickets](https://aihero.dev/skills-to-tickets) writes them. Without edges the graph is flat and every ticket starts at once.
 - **A [harness](https://www.aihero.dev/ai-coding-dictionary/harness) that runs subagents in the background and gives each one a git worktree.** The skill exists to run tickets at the same time, so on a harness that runs subagents one at a time, it is only a slower `implement`.
 
@@ -55,17 +55,29 @@ It does now, though it didn't at first. Users running the in-progress version no
 
 Worktrees don't remove collisions; they postpone them to merge time. A blocking edge written from ticket text is a guess about which files each ticket will touch, and two tickets on "different parts of the codebase" still share a message catalogue, a config registry, or a type. Each implementer sees only its own ticket and the shared notes, never the other's work in progress, so one user's web and mobile tickets added the same string as `blockedSince` and `blockedOn`. When two frontier tickets touch one shared file, either add a blocking edge between them so they run one after the other, or have the exploration notes fix the exact names each ticket adds.
 
+**It started seven implementers at once and the machine ground to a halt.**
+
+Nothing in the skill caps them. Every ticket on the frontier runs at once, and each implementer runs its own tests in its own worktree, so a wide graph means that many test suites (and databases, if your tests start them) on one machine. One user's load average reached about 140: a four-minute suite took nineteen, tests timed out in unrelated files, and implementers reported flaky failures that were not real defects. Their fix was to cap the run at three implementers, queue merges one at a time, have implementers run only lint, typecheck and their own tests, and leave the full suite to the merge step. Give the orchestrator the cap when you start the run.
+
 **Blocked tickets never start, even after their blocker has merged.**
 
 This is a known problem on GitHub. The tracker's blocked-by count only drops when a blocker *closes*, and tickets typically close when the PR merges, which is the end of the run. The tracker is the right source for the starting graph but a stale one mid-run. Tell the orchestrator to track which tickets have merged into the integration branch itself and compute the frontier from that.
 
-**Does this replace Sandcastle or an AFK script?**
+**Does this replace Sandcastle or an [AFK](https://www.aihero.dev/ai-coding-dictionary/afk) script?**
 
-No. People ask because the skills now reach into implementation: "is Sandcastle still relevant? Your skills now seem to be able to handle implementation as well." `implement-spec` puts an agent in charge of orchestration inside one harness session, which needs no infrastructure and lets you watch and steer. For work that is truly [AFK](https://www.aihero.dev/ai-coding-dictionary/afk), a deterministic loop ([Sandcastle](https://github.com/mattpocock/sandcastle), a shell script, a CI job) is faster, cheaper, and more reliable, because no agent makes the orchestration decisions.
+No. People ask because the skills now reach into implementation: "is Sandcastle still relevant? Your skills now seem to be able to handle implementation as well." `implement-spec` puts an agent in charge of orchestration inside one harness session, which needs no infrastructure and lets you watch and steer. For work that is truly AFK, a deterministic loop ([Sandcastle](https://github.com/mattpocock/sandcastle), a shell script, a CI job) is faster, cheaper, and more reliable, because no agent makes the orchestration decisions.
 
 **A ticket's key test was skipped inside its worktree, and it reported green.**
 
 A worktree holds only what git tracks. Tests that read gitignored fixtures, local databases, or credentials can silently skip there. For a ticket whose verification depends on untracked material, tell the orchestrator to run it in the main checkout instead.
+
+**The one big PR is hard to review. Can it open a PR per ticket?**
+
+No. The goal is one integration branch, with at most one PR over it. One user asked for stacked PRs because a single diff over a whole spec loses the link between each change and its ticket. The skill has no mode for that. Each ticket's commits usually still arrive on the integration branch from its own branch, so you can read the history one ticket at a time. If you want each ticket reviewed on its own, work them one at a time with [implement](https://aihero.dev/skills-implement) instead.
+
+**Is it normal for the orchestrator to hit [compaction](https://www.aihero.dev/ai-coding-dictionary/compaction) mid-run?**
+
+It happens. One user saw a five-ticket spec compact twice. The orchestrator's window carries the whole run: the graph, every report back, every merge, and the closing review. The skill keeps subagent traffic to context pointers so that window lasts, so if it compacts often, check whether implementers are pasting long reports back instead of pointers. After a compaction, check that it still knows which tickets have merged, and point it at the integration branch's history rather than its memory.
 
 ## It's working if
 

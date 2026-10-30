@@ -54,25 +54,33 @@ The agent that writes a wizard never runs it end to end, because the script open
 
 ## Common questions
 
-**Do my API keys end up in the model's context?**
+**Do my API keys end up in the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s [context](https://www.aihero.dev/ai-coding-dictionary/context)?**
 
-No. The agent writes a script; it doesn't run it. You run the script yourself, and it captures the key with hidden terminal entry and writes it straight to `.env` or `gh secret`. The wizard is a CLI, and the model is not connected to it. This holds only for values the wizard captures at runtime. If you paste a key into the chat while scoping the procedure, it's in the [context](https://www.aihero.dev/ai-coding-dictionary/context) like any other pasted text.
+No. The agent writes a script; it doesn't run it. You run the script yourself, and it captures the key with hidden terminal entry and writes it straight to `.env` or `gh secret`. The wizard is a CLI, and the model is not connected to it. This holds only for values the wizard captures at runtime. If you paste a key into the chat while scoping the procedure, it's in the context like any other pasted text.
 
 **Can I go back and fix a value I mistyped?**
 
 Not mid-run. There is no back button. The stages run forward, and a wrong answer on stage 3 means Ctrl-C and re-run. Re-running is cheap, because any value already written to `.env` is offered back as a default, so you press Enter through the stages you got right and retype only the wrong one. Users asked for this in launch week, and it is still open: "loved it! One thing though, is there a way to go back and correct what you've entered?"
 
+**Is it safe to Ctrl-C and re-run a migration wizard?**
+
+Not always. Every wizard opens with the same banner, saying you can stop and re-run because it remembers values already saved. That holds for values written to `.env`. It does not hold for state a stage keeps only inside the running script, such as the list of files it has moved. One user's production cleanup wizard moved files into quarantine, and a re-run part way through would have lost track of them and left the quarantine stranded ([issue #1310](https://github.com/mattpocock/skills/issues/1310)). For a stateful cutover, read the stages before you run it, and ask the agent to make each irreversible stage check what is already done.
+
 **Does it know what I've already set up?**
 
 Partly, and less than the launch reactions assumed. It reads the repo before it asks (your `.env` files, `docker-compose`, framework config, the `secrets.*` references in CI), so it scopes to values that are missing rather than starting from zero the way a README does. What it doesn't do is check the third-party service. If a key exists in your `.env` the wizard offers it back and Enter keeps it; if you already created the Stripe account but never saved the key, the wizard still sends you to the dashboard for it.
 
-**Where does it sit in the workflow, after grilling and the spec?**
+**Where does it sit in the workflow, after [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) and the [spec](https://www.aihero.dev/ai-coding-dictionary/spec)?**
 
 Nowhere in particular. It's a standalone, not a chain step. The common guess is `/grill-with-docs → /to-spec → /wizard`, and that sequence is fine, but the trigger is a manual procedure showing up, which can happen at any point: before you start, mid-build, or long after ship. It also works as a discovery tool. Scoping finds the hidden prerequisites of a task, like the three API keys you hadn't thought about, before you commit to the work.
 
 **Does it work outside Claude Code?**
 
-The script does. It's plain bash, and it runs the same whatever [harness](https://www.aihero.dev/ai-coding-dictionary/harness) generated it. The skill itself is model-invoked, so it's listed everywhere: type `/wizard` in Claude Code or `$wizard` in Codex, or just describe the setup you're stuck on. Being model-invoked also keeps it clear of [#693](https://github.com/mattpocock/skills/issues/693), where Claude's desktop and web apps drop *user-invoked* skills from the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s listing and report them as not installed.
+The script does. It's plain bash, and it runs the same whatever [harness](https://www.aihero.dev/ai-coding-dictionary/harness) generated it. The skill itself is model-invoked, so it's listed everywhere: type `/wizard` in Claude Code or `$wizard` in Codex, or just describe the setup you're stuck on. Being model-invoked also keeps it clear of [#693](https://github.com/mattpocock/skills/issues/693), where Claude's desktop and web apps drop *user-invoked* skills from the model's listing and report them as not installed.
+
+**Does it work on Windows? Can it write PowerShell instead?**
+
+It writes bash only, so on Windows you run the wizard under WSL or Git Bash. A request to detect Windows and write PowerShell has been filed ([issue #954](https://github.com/mattpocock/skills/issues/954)), and the skill still writes bash. WSL is the better-supported path, because the template opens URLs there through `wslview`. Under Git Bash it falls back to `explorer.exe`, which often opens the browser and still reports failure, so you see a "couldn't open a browser" warning for a page that did open ([issue #963](https://github.com/mattpocock/skills/issues/963)). Check the browser before you follow the warning.
 
 **Didn't this used to be user-invoked?**
 

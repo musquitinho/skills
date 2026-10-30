@@ -8,7 +8,7 @@ It grills you about the **send**, never the subject. An interview about the topi
 
 You invoke this by typing `/to-questionnaire`; the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own.
 
-Reach for it when a decision is blocked on knowledge that lives in one other person's head: a client, a domain expert, an exec who owns the business rules, a colleague on a team you don't sit with. Which skill you want depends on where the answers are:
+Reach for it when a decision is blocked on knowledge that lives in one other person's head: a client, a domain expert, an exec who owns the business rules, a colleague on a team you don't sit with. Which [skill](https://www.aihero.dev/ai-coding-dictionary/skill) you want depends on where the answers are:
 
 | The answers are in… | Reach for |
 | --- | --- |
@@ -17,7 +17,7 @@ Reach for it when a decision is blocked on knowledge that lives in one other per
 | Someone else's head | `to-questionnaire` |
 | Nobody's head yet, the question needs something to react to | [prototype](https://aihero.dev/skills-prototype) |
 
-The common case is a [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) session that stalls because some of the questions it raised aren't yours to answer. Run `/to-questionnaire` in that same conversation to take those questions offline, then bring the answers back and carry on.
+The common case is a [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) [session](https://www.aihero.dev/ai-coding-dictionary/session) that stalls because some of the questions it raised aren't yours to answer. Run `/to-questionnaire` in that same conversation to take those questions offline, then bring the answers back and carry on.
 
 ## The send, not the subject
 
@@ -43,7 +43,7 @@ The document is deliberately not two things. It isn't **branching**. The questio
 ## Common questions
 
 **Does it read my grilling session and extract the questions from it?**
-Not as a step of its own. The skill has no ingest phase. It asks about the send, then drafts. What makes it work after a grilling session is that you run it in the **same conversation**, so the [session](https://www.aihero.dev/ai-coding-dictionary/session) is already in [context](https://www.aihero.dev/ai-coding-dictionary/context) and the drafting can draw on it. If you start it in a fresh session, it knows nothing about the grilling, and you supply the topic again yourself when you answer "what do you need back?".
+Not as a step of its own. The skill has no ingest phase. It asks about the send, then drafts. What makes it work after a grilling session is that you run it in the **same conversation**, so the session is already in [context](https://www.aihero.dev/ai-coding-dictionary/context) and the drafting can draw on it. If you start it in a fresh session, it knows nothing about the grilling, and you supply the topic again yourself when you answer "what do you need back?".
 
 **The missing answers don't all live with the same person. Can it split them by recipient?**
 No. Step one asks for *the* recipient, singular, and the skill pitches the tone and context of the whole document at them. If three people hold three parts of the answer, run it three times, once per person. People have asked for one document that routes questions by discipline or role, but that did not ship.

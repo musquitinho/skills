@@ -2,13 +2,13 @@
 
 `research` answers a question by reading the sources that own the answer, then leaves a cited Markdown file in the repo. It works only from **[primary sources](https://www.aihero.dev/ai-coding-dictionary/primary-source)**: official docs, source code, specs, first-party APIs. It follows every claim back to the source that owns it, so it will not repeat a blog post's account of an API when the API's own docs are reachable.
 
-It does not answer you in the conversation. The output is a file, written where the repo already keeps such notes, with a link on each claim. You get a document you can react to, hand to another agent, or throw away, rather than an answer that is gone when the [session](https://www.aihero.dev/ai-coding-dictionary/session) ends.
+It does not answer you in the conversation. The output is a file, written where the repo already keeps such notes, with a link on each claim. You get a document you can react to, hand to another [agent](https://www.aihero.dev/ai-coding-dictionary/agent), or throw away, rather than an answer that is gone when the [session](https://www.aihero.dev/ai-coding-dictionary/session) ends.
 
 ## When to reach for it
 
-Type `/research`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it automatically when a task turns into reading legwork.
+Type `/research`, or the agent reaches for it automatically when a task turns into reading legwork.
 
-Reach for it when the next step is *finding something out* from outside the working directory (how a third-party API behaves, what a spec says, whether a version claim holds), and you'd rather not stall your own thread doing the reading. What you need decides which skill:
+Reach for it when the next step is *finding something out* from outside the working directory (how a third-party API behaves, what a spec says, whether a version claim holds), and you'd rather not stall your own thread doing the reading. What you need decides which [skill](https://www.aihero.dev/ai-coding-dictionary/skill):
 
 | What you need | Reach for |
 | --- | --- |
@@ -32,9 +32,13 @@ The repo decides where the file goes, not the skill. It follows whatever convent
 
 **It spawned a second research agent. Is that meant to happen?**
 
-No. This is an open bug, [issue #530](https://github.com/mattpocock/skills/issues/530). The skill tells its caller to spin up a background agent but does not restrict the agent type. So the caller spawns a `general-purpose` agent, which has the `Agent` tool and the same instructions, and follows them again. One reporter measured a single research task costing roughly 450k [tokens](https://www.aihero.dev/ai-coding-dictionary/token) across three overlapping runs, and the duplicate finished half an hour later where the user could not see it. It also happens outside Claude Code. Users confirmed the same nesting in Codex with GPT-5.6-sol. There is no shipped fix. Users have patched their own installed copy with a line telling an agent that is already a [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent) to do the work itself, That helps, but it is only an instruction, not a structural fix. After you invoke the skill, watch your background task list and stop the duplicate.
+No. It is a known bug, [issue #530](https://github.com/mattpocock/skills/issues/530), closed without a fix. The skill tells its caller to spin up a background agent but does not restrict the agent type. So the caller spawns a `general-purpose` agent, which has the `Agent` [tool](https://www.aihero.dev/ai-coding-dictionary/tool) and the same instructions, and follows them again. One reporter measured a single research task costing roughly 450k [tokens](https://www.aihero.dev/ai-coding-dictionary/token) across three overlapping runs, and the duplicate finished half an hour later where the user could not see it. It also happens outside Claude Code. Users confirmed the same nesting in Codex with GPT-5.6-sol. There is no shipped fix. Users have patched their own installed copy with a line telling an agent that is already a [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent) to do the work itself. That helps, but it is only an instruction, not a structural fix. After you invoke the skill, watch your background task list and stop the duplicate.
 
 The opposite failure also happens. If your own global instructions forbid an agent from re-delegating work, the background agent declines the task, and the skill does nothing without telling you.
+
+**I stopped it (or it disconnected) and there is no file at all.**
+
+The skill never says when to start writing, so the agent keeps everything in its [context](https://www.aihero.dev/ai-coding-dictionary/context) and writes the file at the end. Anything that interrupts it first (you stopping it, a dropped connection, a fetch that hangs) loses the whole run. One team hit this in three of four background runs, including one that read for about 30 minutes and used about 113k tokens before it was stopped with nothing on disk ([#1272](https://github.com/mattpocock/skills/issues/1272)). A one-line fix is proposed but not merged. Until then, add it to your request yourself: create the file in the first few [tool calls](https://www.aihero.dev/ai-coding-dictionary/tool-call), and update it after each source.
 
 **Where should the file live, and should I commit it?**
 
@@ -50,15 +54,19 @@ No. Nothing loads a past research file automatically. The file stays in the repo
 
 **Why not just ask the agent to go read the docs?**
 
-You can, and a two-line prompt saying exactly that was the practice this skill replaced. The skill gives you two things the prompt does not. It runs in the background, so your session's [context](https://www.aihero.dev/ai-coding-dictionary/context) stays clean. And the primary-source constraint and the cited-file output are the same every time, rather than depending on how you phrased the prompt. Compared with a [harness](https://www.aihero.dev/ai-coding-dictionary/harness)'s own deep-research mode, the difference is the file and the primary-source rule, not the search. If a two-line prompt gets you what you need on a small question, use the two-line prompt.
+You can, and a two-line prompt saying exactly that was the practice this skill replaced. The skill gives you two things the prompt does not. It runs in the background, so your session's context stays clean. And the primary-source constraint and the cited-file output are the same every time, rather than depending on how you phrased the prompt. Compared with a [harness](https://www.aihero.dev/ai-coding-dictionary/harness)'s own deep-research mode, the difference is the file and the primary-source rule, not the search. If a two-line prompt gets you what you need on a small question, use the two-line prompt.
 
 **When does it stop reading?**
 
 The skill has no stopping criterion. This shows up as two complaints that look opposite but have the same cause: agents that go far too deep, and agents that cover a topic broadly but miss the one detail that mattered. One practitioner put it as "deep-research skills are a bit too deep sometimes. And telling an agent to research usually results in missing crucial details." You have to set the scope. A narrow, answerable question (one API, one behaviour, one version claim) comes back far better than "research X".
 
+**In GitHub Copilot CLI, `/research` runs Copilot's own command instead.**
+
+Copilot CLI ships a built-in `/research`, and the built-in wins, so typing the name never reaches this skill ([#857](https://github.com/mattpocock/skills/issues/857)). The skill was not renamed. It is model-invoked, though, so asking in plain words ("use the research skill to find out…") still gets you there.
+
 **`/wayfinder` created research tickets. Do I resolve those myself?**
 
-No, it now fires them for you. In the unreleased changes since v1.1, a charting session spawns one `/research` subagent per research ticket and runs them in parallel. Each one records its findings on a throwaway `research/<name>` branch, with a [context pointer](https://www.aihero.dev/ai-coding-dictionary/context-pointer) from the ticket. Research tickets are the one exception to wayfinder's one-ticket-per-session rule, because they are [AFK](https://www.aihero.dev/ai-coding-dictionary/afk): nothing waits on you. One known problem: deleting the branch later breaks the context pointers in the tickets.
+No, it now fires them for you. Since v1.2.0, a charting session spawns one `/research` subagent per research ticket and runs them in parallel. Each one records its findings on a throwaway `research/<name>` branch, with a [context pointer](https://www.aihero.dev/ai-coding-dictionary/context-pointer) from the ticket. Research tickets are the one exception to wayfinder's one-ticket-per-session rule, because they are [AFK](https://www.aihero.dev/ai-coding-dictionary/afk): nothing waits on you. One known problem: deleting the branch later breaks the context pointers in the tickets.
 
 ## It's working if
 

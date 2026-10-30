@@ -1,12 +1,12 @@
 ## What it does
 
-`ask-matt` is the router over the skills in this repo. You describe the situation you are in (an idea you cannot start, a pile of incoming bug reports, a [session](https://www.aihero.dev/ai-coding-dictionary/session) that has run long), and it names the skill or the sequence of skills that fits, plus where the human decisions in that sequence sit.
+`ask-matt` is the router over the [skills](https://www.aihero.dev/ai-coding-dictionary/skill) in this repo. You describe the situation you are in (an idea you cannot start, a pile of incoming bug reports, a [session](https://www.aihero.dev/ai-coding-dictionary/session) that has run long), and it names the skill or the sequence of skills that fits, plus where the human decisions in that sequence sit.
 
 It recommends and stops. It does not grill, write a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), open a file or fire the skill it just named; what you get back is the next thing to type, and you type it. It is also a hand-written map of the skills in this repo rather than a scan of what you have installed, so it will not route you over your own skills or another author's.
 
 ## When to reach for it
 
-You invoke this by typing `/ask-matt`; the agent won't reach for it on its own.
+You invoke this by typing `/ask-matt`; the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own.
 
 | Your situation | What the router gives back |
 | --- | --- |
@@ -26,7 +26,7 @@ The tracker-dependent routes (triage, `to-spec`, `to-tickets`, `implement`) assu
 
 The skill's leading word is **flow**, a path *through* the skills rather than a single skill. When you name your situation, the router places you at a step on a flow. That is a different answer from "here is the skill that matches your keywords". There are five kinds of route, and the skill itself describes them in full:
 
-- **The main flow**, idea to ship. Grill, spec, tickets, implement (one ticket at a time, or the whole task graph in parallel with [implement-spec](https://aihero.dev/skills-implement-spec)), review, then [retro](https://aihero.dev/skills-retro), which feeds what the build taught back into the agent's environment. It has two branches. One is a prototype detour, for when a question needs runnable code to settle it. The other is the spec-and-tickets split, which is only worth its cost when the build spans more than one session.
+- **The main flow**, idea to ship. Grill, spec, tickets, implement (one ticket at a time, or the whole task graph in parallel with [implement-spec](https://aihero.dev/skills-implement-spec)), review, then [retro](https://aihero.dev/skills-retro), which feeds what the build taught back into the agent's [environment](https://www.aihero.dev/ai-coding-dictionary/environment). It has two branches. One is a prototype detour, for when a question needs runnable code to settle it. The other is the spec-and-tickets split, which is only worth its cost when the build spans more than one session.
 - **On-ramps**, for a situation that generates work and then merges onto the main flow: incoming bug reports, something broken, or an effort too foggy and too large to hold in one session.
 - **Codebase health**, upkeep rather than feature work. [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) surveys the code for deepening opportunities, and each one it finds re-enters the main flow as an idea.
 - **Standalones**, which sit off every flow and which you use on their own: the prototype, the questionnaire, the research run.
@@ -44,7 +44,7 @@ The skill's other key idea is the **phase boundary**. A phase is a chunk of work
 | **Subagent** | The task is scoped tightly enough to run with you [away from the keyboard](https://www.aihero.dev/ai-coding-dictionary/afk) |
 | **`/compact`** | None of the above. It is the default, and the tree often ends here |
 
-People often get two of these wrong, which is why the router gives the order and not only the list. `/handoff` looks like the general way to move between context windows, but it is not. All it gives you is portability. `/compact` is the last option in the tree, not the first, because each of the four options above it is cheaper or more precise.
+People often get two of these wrong, which is why the router gives the order and not only the list. `/handoff` looks like the general way to move between [context windows](https://www.aihero.dev/ai-coding-dictionary/context-window), but it is not. All it gives you is portability. `/compact` is the last option in the tree, not the first, because each of the four options above it is cheaper or more precise.
 
 ## Common questions
 
@@ -58,7 +58,7 @@ This is a known bug, and it is not fixed. Most of the skills the router routes y
 
 **It described a skill's behaviour, and the skill doesn't do that.**
 
-This is also a real bug, and also not fixed. The router answers from its own one-line summary of each skill rather than from the skill. One detailed report tracked three instances in a single session, including a recommendation to skip [to-spec](https://aihero.dev/skills-to-spec) based only on the summary "turn the thread into a spec". The router never opened `to-spec/SKILL.md`. In every case it verified only after the user pushed back, and never on its own initiative. Skipping `to-spec` there cost a real seam check, and the tickets that came out undercounted the work. When the router states something about another skill that you will act on, ask it to open that `SKILL.md` first. The same applies to questions the map does not cover at all, such as whether to use [plan mode](https://www.aihero.dev/ai-coding-dictionary/agent-mode): that answer is the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s inference, not something written down here.
+This is also a real bug, and also not fixed. The router answers from its own one-line summary of each skill rather than from the skill. One detailed report tracked three instances in a single session, including a recommendation to skip [to-spec](https://aihero.dev/skills-to-spec) based only on the summary "turn the thread into a spec". The router never opened `to-spec/SKILL.md`. In every case it verified only after the user pushed back, and never on its own initiative. Skipping `to-spec` there cost a real seam check, and the tickets that came out undercounted the work. When the router states something about another skill that you will act on, ask it to open that `SKILL.md` first. The same applies to questions the map does not cover at all, such as whether to use [plan mode](https://www.aihero.dev/ai-coding-dictionary/agent-mode): that answer is the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s [inference](https://www.aihero.dev/ai-coding-dictionary/inference), not something written down here.
 
 **Why is it prose instead of a numbered checklist?**
 
@@ -67,6 +67,10 @@ It is a fair complaint. An open issue argues that most of the routing is determi
 **Can it route over my own skills, or another author's?**
 
 No. Three separate proposals have asked for a router that reads your local `skills/` directory and recommends from whatever is installed. `ask-matt` is not that. It is a map of one set, maintained by hand, and it knows nothing about skills you wrote or installed from elsewhere.
+
+**It lives in `engineering/`. Does it only cover the Engineering skills?**
+
+No. It routes across both promoted buckets, including Productivity skills such as [grill-me](https://aihero.dev/skills-grill-me), [handoff](https://aihero.dev/skills-handoff), [teach](https://aihero.dev/skills-teach) and [to-questionnaire](https://aihero.dev/skills-to-questionnaire), and it does not say which bucket each route comes from. One user asked it to introduce every skill so they could decide which to keep installed, got the router's map back as if it were the whole catalogue, and then spent the session untangling the bucket boundary. It is a router, not a catalogue. For that decision, read the list in the [README](https://github.com/mattpocock/skills/blob/main/README.md), and keep every Productivity skill that sits on a route you use.
 
 **It told me to edit a SKILL.md.**
 

@@ -1,6 +1,6 @@
 ## What it does
 
-`writing-for-agents` is the reference for writing agent-facing documents: a skill, an `AGENTS.md` or `CLAUDE.md`, a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), a runtime prompt, a README, any doc an [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reads. The format differs, but the writing does not. The same levers make each one predictable, so the agent follows the same *process* on every run (not necessarily to the same output).
+`writing-for-agents` is the reference for writing agent-facing documents: a [skill](https://www.aihero.dev/ai-coding-dictionary/skill), an `AGENTS.md` or `CLAUDE.md`, a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), a runtime prompt, a README, any doc an [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reads. The format differs, but the writing does not. The same levers make each one predictable, so the agent follows the same *process* on every run (not necessarily to the same output).
 
 Its default fix is to delete, not to explain. Ask an agent to write instructions for another agent and it spends most of its words explaining what the [model](https://www.aihero.dev/ai-coding-dictionary/model) already knows. Each of those lines is a **no-op**: it costs [context](https://www.aihero.dev/ai-coding-dictionary/context) and changes no behaviour. This reference helps you find them, so it is as useful on a document you already have as on a blank file.
 
@@ -57,6 +57,9 @@ The common method (do the work once, then have the agent write it up as a skill)
 
 **English isn't my first language. Do I lose the leading-word advantage?**
 No. Finding the word that packs the most behaviour into the fewest [tokens](https://www.aihero.dev/ai-coding-dictionary/token) is work the reference does for you.
+
+**It says to set `disable-model-invocation`, but that doesn't work in Codex.**
+That key is Claude Code's, and Codex's skill format does not support it ([#965](https://github.com/mattpocock/skills/issues/965)). In Codex, a skill is made user-invoked by `policy.allow_implicit_invocation: false` in an `agents/openai.yaml` file beside the `SKILL.md`. To keep a skill user-invoked in both [harnesses](https://www.aihero.dev/ai-coding-dictionary/harness), set both, and keep them in sync.
 
 ## It's working if
 
